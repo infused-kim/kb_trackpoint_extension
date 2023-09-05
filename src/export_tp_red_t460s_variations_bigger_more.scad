@@ -1,16 +1,15 @@
 use <export_tp_red_t460s.scad>
 
 tolerance_adjustments = [
-    0,
-    -0.2,
-    0.2,
-    0.4,
+    +0.3,
+    +0.4,
 ];
 
 height_adjustments = [
-    0,
     -1,
-    2,
+    +0,
+    +1
+    +2,
 ];
 
 spacing = 6;
