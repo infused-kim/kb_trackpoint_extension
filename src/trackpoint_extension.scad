@@ -29,8 +29,6 @@ module draw_trackpoint_extension(
         // The thickness of the PCB
         pcb_height=1.6) {
 
-    echo(str("Building TP extension with ", extension_height, "mm height"));
-
     adapter_width = choc_switches_space_between_bottom;
     adapter_height = tp_mounting_distance + pcb_height + choc_notch_to_pcb_z_space - 0.2;
 
@@ -40,7 +38,8 @@ module draw_trackpoint_extension(
 
     // Since a portion of the extension adapter will be below the top of the
     // pcb, we calculate the length that it will extend above the pcb here
-    adapter_above_pcb_height = adapter_height - pcb_height - tp_mounting_distance;
+    adapter_below_pcb_height = pcb_height + tp_mounting_distance;
+    adapter_above_pcb_height = adapter_height - adapter_below_pcb_height;
 
     tip_width = tp_cap_hole_width + tip_width_incr;
     tip_height = tp_cap_hole_height;
@@ -56,6 +55,17 @@ module draw_trackpoint_extension(
     // Width of the extension (maximum possible on choc switches)
     extension_width = choc_switches_space_between_top;
     extension_offset = (adapter_width - extension_width) / 2;
+
+    total_height = adapter_height + extension_height + tip_height;
+    above_pcb_height = total_height - adapter_below_pcb_height;
+    above_pcb_height_cap = above_pcb_height + tp_cap_top_height;
+
+    echo(str("Building TP extension..."));
+    echo(str("\t Total height: ", total_height, "mm"));
+    echo(str("\t Below PCB height: ", adapter_below_pcb_height, "mm"));
+    echo(str("\t Above PCB height: ", above_pcb_height, "mm"));
+    echo(str("\t Above PCB height with cap: ", above_pcb_height_cap, "mm"));
+    echo(str("\t Adapter hole width: ", adapter_hole_width, "mm (+", adapter_hole_width - tp_stem_width, "mm)"));
 
     difference() {
         // Adapter
