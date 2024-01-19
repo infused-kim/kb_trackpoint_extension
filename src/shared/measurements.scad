@@ -36,8 +36,8 @@ choc_spacing_x = 18;
 
 // The space between two switches at the bottom plate
 // (4.4mm)
-switches_space_between_bottom = choc_spacing_x - choc_width_bottom;
+choc_switches_space_between_bottom = choc_spacing_x - choc_width_bottom;
 
 // The space between two switches at the top with the little notch
 // (3mm)
-switches_space_between_top = choc_spacing_x - choc_width_notch;
+choc_switches_space_between_top = choc_spacing_x - choc_width_notch;

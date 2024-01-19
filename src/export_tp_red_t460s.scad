@@ -1,100 +1,88 @@
 use <trackpoint_extension.scad>
-use <shared/measurements.scad>
+
+/*
+ * Parameters
+ */
+
+// The height above the pcb where you want the top of the red cap to be
+desired_cap_height_default = 11;
+
+// Thickness of the pcb
+pcb_height_default = 1.6;
+
+// How far the TP is mounted BELOW the PCB.
+// This should include the thickness of any plastic or electrical tape you use
+// to isolate the TP mount.
+tp_mounting_distance_default = 0;
+
+// By how much you want to increase the adapter hole compared to the
+// actual TP stem width
+adapter_hole_incr_default = 0.5;
+
+// By how much you want to increase the tip for a tighter cap fit
+tip_width_incr_default = 0;
+
 
 /*
  * TP Measurements
  */
+
+// From bottom metal part to stem top
+tp_total_height = 4.0;
 
 // The metal and black bottom part.
 // This is the height that sticks out below the pcb if the
 // TP is mounted totally flush.
 tp_board_thickness = 1.3;
 
-// From bottom metal part to stem top
-tp_total_height = 4.0;
-
 // The height of the white stem
 // (2.7mm)
 tp_stem_height = tp_total_height - tp_board_thickness;
-
-// How much the TP stem hangs out above the PCB when the TP is mounted
-// flush to the bottom of the PCB.
-// (0.7mm)
-tp_stem_height_above_pcb = tp_stem_height - tp_isolator_thickness -  pcb_thickness;
-
-tp_stem_height_below_pcb = tp_stem_height - tp_stem_height_above_pcb;
 
 // TP white stem dimensions
 tp_stem_width = 2.2;
 tp_stem_diameter = 3.0;
 
 // TP dot dimensions
-tp_dot_height_total = 4.0;
-tp_dot_hole_height = 3.0;
+tp_cap_height_total = 4.0;
+tp_cap_hole_height = 3.0;
 
 // But it could fit 3.0 for a tighter fit
-tp_dot_hole_width = 2.5;
-
-// The height added on top of the stem extension for the total TP height
-// (1mm)
-tp_dot_top_height = tp_dot_height_total - tp_dot_hole_height;
+tp_cap_hole_width = 2.5;
 
 
-/*
- * Mount Parameters - The extension part that attaches to the TP stem
- */
+module draw_tp_ext_red_t460s(
+        desired_cap_height=desired_cap_height_default,
+        tp_mounting_distance=tp_mounting_distance_default,
+        adapter_hole_incr=adapter_hole_incr_default,
+        tip_width_incr=tip_width_incr_default,
+        pcb_height=pcb_height_default) {
 
-// (2.2mm + x)
-mount_hole_width = tp_stem_width + 0.5;
+    draw_trackpoint_extension_new(
+        desired_cap_height=desired_cap_height,
 
-// (2.7mm + x)
-mount_hole_height = tp_stem_height + 0.5;
+        // How far below the pcb the TP is mounted (from start of the stem)
+        tp_mounting_distance=tp_mounting_distance,
 
-// (4.4mm)
-mount_width = switches_space_between_bottom;
+        // The measured width and height of the TP stem
+        tp_stem_width=tp_stem_width,
+        tp_stem_height=tp_stem_height,
 
-// (2 + 2.2 - 2 = 4.0mm)
-mount_height = tp_stem_height_below_pcb + choc_notch_to_pcb_z_space - 0.2;
+        // The red cap dimensions
+        tp_cap_height_total=tp_cap_height_total,
+        tp_cap_hole_height=tp_cap_hole_height,
+        tp_cap_hole_width=tp_cap_hole_width,
 
-// (~0.65 - 0.85mm)
-mount_wall_thickness_sides = (mount_width - mount_hole_width) / 2;
+        // By how much you want to increase the adapter hole compared to the
+        // actual TP stem width
+        adapter_hole_incr=adapter_hole_incr,
 
-// (~0.8mm)
-mount_wall_thickness_top = mount_height - mount_hole_height;
+        // By how much you want to increase the tip for a tighter cap fit
+        tip_width_incr=tip_width_incr,
 
-// How high the extension extends above the pcb
-mount_above_pcb_height = mount_height - tp_stem_height_below_pcb;
-
-/*
- * Tip Parameters
- */
-
-tip_width = tp_dot_hole_width + 0.5;
-tip_height = tp_dot_hole_height;
-
-/*
- * Extension Parameters
- */
-
-// Where you want the red dot to end up
-extension_total_height_above_pcb = 11;
-
-// Height of the part between the mount at the bottom and tip at the top
-extension_height = extension_total_height_above_pcb - tp_dot_top_height - tip_height - mount_above_pcb_height;
-
-// Width of the extension
-extension_width = 2.5;
-
-
-module draw_tp_ext_red_t460s(tolerance_adjustment=tolerance_adjustment, height_adjustment=height_adjustment, wall_thickness=wall_thickness) {
-
-    draw_trackpoint_extension(
-        stem_width,
-        stem_height,
-        extension_height + height_adjustment,
-        wall_thickness=wall_thickness,
-        tolerance_adjustment=tolerance_adjustment
+        // The thickness of the PCB
+        pcb_height=pcb_height
     );
 }
 
-draw_tp_ext_red_t460s(tolerance_adjustment, height_adjustment, wall_thickness);
+draw_tp_ext_red_t460s();
