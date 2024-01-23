@@ -58,7 +58,7 @@ module draw_tp_ext_red_t460s(
         tip_width_incr=tip_width_incr_default,
         pcb_height=pcb_height_default) {
 
-    draw_trackpoint_extension_new(
+    draw_trackpoint_extension(
         desired_cap_height=desired_cap_height,
 
         // How far below the pcb the TP is mounted (from start of the stem)
