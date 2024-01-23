@@ -102,7 +102,8 @@ STL_TARGETS := $(patsubst $(SRC_DIR)/export_%.scad,$(STL_DIR)/%$(FNAME_POSTFIX).
 
 $(STL_DIR)/%$(FNAME_POSTFIX).stl: $(SRC_DIR)/export_%.scad $(SRC_DIR)/trackpoint_extension.scad
 	@echo "Building $@..."
-	$(OPENSCAD_CMD) $(PARAMS) --render -o $@ $<
+	@echo "> $(OPENSCAD_CMD) $(PARAMS) --render -o $@ $<\n" | tee $(STL_DIR)/$*$(FNAME_POSTFIX).log
+	@$(OPENSCAD_CMD) $(PARAMS) --render -o $@ $< 2>&1 | tee -a $(STL_DIR)/$*$(FNAME_POSTFIX).log
 	@echo
 	@echo
 
