@@ -84,6 +84,9 @@ endif
 PARAMS = $(HEIGHT_VAL) $(MOUNTING_DISTANCE_VAL) $(PCB_HEIGHT_VAL) $(HOLE_INCR_VAL) $(TIP_INCR_VAL)
 FNAME_POSTFIX = $(HEIGHT_FNAME)$(MOUNTING_DISTANCE_FNAME)$(PCB_HEIGHT_FNAME)$(HOLE_INCR_FNAME)$(TIP_INCR_FNAME)
 
+# Pathes for combined
+COMBINED_STL_ARRAY=[]
+
 # OpenScad options
 OPENSCAD_OPTIONS=--export-format binstl
 OPENSCAD_CMD=$(OPENSCAD) $(OPENSCAD_OPTIONS)
@@ -103,8 +106,15 @@ $(STL_DIR)/%$(FNAME_POSTFIX).stl: $(SRC_DIR)/export_%.scad $(SRC_DIR)/trackpoint
 	@echo
 	@echo
 
+combined:
+	@echo "Building $@..."
+	$(eval COMBINED_STL_ARRAY:=$(shell bash -c 'printf "["; for file in "$(STL_DIR)"/*.stl; do if [ "$$file" != "$(STL_DIR)/tp_ext_combined.stl" ] && [ -e "$$file" ]; then printf "\\\"../%s\\\", " "$$file"; fi; done | sed "s/, $$//"; printf "]"'))
+	$(OPENSCAD_CMD) $(PARAMS) --render -D stl_array='$(COMBINED_STL_ARRAY)' -o $(STL_DIR)/tp_ext_combined.stl $(SRC_DIR)/stl_combiner.scad
+	@echo
+	@echo
+
 # Default target
-all: $(STL_TARGETS)
+all: $(STL_TARGETS) combined
 
 # Remove generated STL files
 clean:
