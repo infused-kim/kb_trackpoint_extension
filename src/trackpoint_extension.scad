@@ -21,7 +21,7 @@ module draw_trackpoint_extension(
 
         // By how much you want to increase the adapter hole compared to the
         // actual TP stem width
-        adapter_hole_incr=0.5,
+        adapter_hole_incr=0.2,
 
         // By how much you want to increase the tip for a tighter cap fit
         tip_width_incr=0,
@@ -33,7 +33,8 @@ module draw_trackpoint_extension(
         // it easier to fit between switches
         cut_sides=true) {
 
-    adapter_width = choc_switches_space_between_bottom;
+    adapter_width = 4;
+    adapter_radius = adapter_width / 2;
     adapter_height = tp_mounting_distance + pcb_height + choc_notch_to_pcb_z_space - 0.2;
 
     adapter_hole_width = tp_stem_width + adapter_hole_incr;
@@ -56,8 +57,7 @@ module draw_trackpoint_extension(
     // Height of the part between the mount at the bottom and tip at the top
     extension_height = desired_cap_height - tp_cap_top_height - tip_height - adapter_above_pcb_height;
 
-    // Width of the extension (maximum possible on choc switches)
-    extension_width = choc_switches_space_between_top;
+    extension_width = 2;
     extension_offset = (adapter_width - extension_width) / 2;
 
     total_height = adapter_height + extension_height + tip_height;
@@ -69,36 +69,29 @@ module draw_trackpoint_extension(
     echo(str("\t Below PCB height: ", adapter_below_pcb_height, "mm"));
     echo(str("\t Above PCB height: ", above_pcb_height, "mm"));
     echo(str("\t Above PCB height with cap: ", above_pcb_height_cap, "mm"));
+    echo(str("\t Adapter height: ", adapter_height, "mm"));
+    echo(str("\t Adapter width: ", adapter_width, "mm"));
+    echo(str("\t Adapter hole height: ", adapter_hole_height, "mm (+", adapter_hole_height - tp_stem_height, "mm)"));
     echo(str("\t Adapter hole width: ", adapter_hole_width, "mm (+", adapter_hole_width - tp_stem_width, "mm)"));
 
     difference() {
         // Adapter
-        translate([0, 0, 0])
-            cube([adapter_width, adapter_height, adapter_width]);
+        translate([adapter_radius, 0, adapter_radius])
+        rotate([-90, 0, 0])
+            cylinder($fn=20, h=adapter_height,r=adapter_radius);
 
         // Hole
         translate([adapter_hole_offset, -ovb, adapter_hole_offset])
             cube([adapter_hole_width, adapter_hole_height + ovb, adapter_hole_width]);
-
-        if(cut_sides == true) {
-        // Cut sides
-        translate([0, adapter_height / 2, -0.5])
-            rotate([0, 45, 0])
-                cube([adapter_width, adapter_height + ovb, 2], center=true);
-
-        translate([adapter_width, adapter_height / 2, adapter_width + 0.5])
-            rotate([0, 45, 0])
-                cube([adapter_width, adapter_height + ovb, 2], center=true);
-        }
     };
 
     // Top extension
     translate([+extension_offset, +adapter_height, +extension_offset])
-        cube([extension_width, extension_height, extension_width]);
+        cube(
+            [extension_width, extension_height, extension_width]
+        );
 
     // Tip for red cap
     translate([+tip_offset, +adapter_height + extension_height, +tip_offset])
         cube([tip_width, tip_height, tip_width]);
-
-
 }
