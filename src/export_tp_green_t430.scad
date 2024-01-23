@@ -1,17 +1,15 @@
 use <trackpoint_extension.scad>
 
-// WARNING: WRONG HEAD USED HERE -- HEAD OF RED S460
-
 /*
  * Parameters
  */
 
 // The height above the pcb where you want the top of the red cap to be
-desired_cap_height_default = 11;
+desired_cap_height_default = 10.5;
 
 // By how much you want to increase the adapter hole compared to the
 // actual TP stem width
-adapter_hole_incr_default = 0.5;
+adapter_hole_incr_default = 0.2;
 
 // Thickness of the pcb
 pcb_height_default = 1.6;
@@ -47,10 +45,8 @@ tp_stem_width = 2.2;
 tp_stem_diameter = 3.0;
 
 // TP dot dimensions
-tp_cap_height_total = 4.0;
-tp_cap_hole_height = 3.0;
-
-// But it could fit 3.0 for a tighter fit
+tp_cap_height_total = 6.0;
+tp_cap_hole_height = 5.0;
 tp_cap_hole_width = 2.5;
 
 
