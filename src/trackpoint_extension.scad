@@ -27,7 +27,11 @@ module draw_trackpoint_extension(
         tip_width_incr=0,
 
         // The thickness of the PCB
-        pcb_height=1.6) {
+        pcb_height=1.6,
+
+        // Whether to cut the front left and back right sides to make
+        // it easier to fit between switches
+        cut_sides=true) {
 
     adapter_width = choc_switches_space_between_bottom;
     adapter_height = tp_mounting_distance + pcb_height + choc_notch_to_pcb_z_space - 0.2;
@@ -75,6 +79,17 @@ module draw_trackpoint_extension(
         // Hole
         translate([adapter_hole_offset, -ovb, adapter_hole_offset])
             cube([adapter_hole_width, adapter_hole_height + ovb, adapter_hole_width]);
+
+        if(cut_sides == true) {
+        // Cut sides
+        translate([0, adapter_height / 2, -0.5])
+            rotate([0, 45, 0])
+                cube([adapter_width, adapter_height + ovb, 2], center=true);
+
+        translate([adapter_width, adapter_height / 2, adapter_width + 0.5])
+            rotate([0, 45, 0])
+                cube([adapter_width, adapter_height + ovb, 2], center=true);
+        }
     };
 
     // Top extension
@@ -84,5 +99,6 @@ module draw_trackpoint_extension(
     // Tip for red cap
     translate([+tip_offset, +adapter_height + extension_height, +tip_offset])
         cube([tip_width, tip_height, tip_width]);
+
 
 }
