@@ -78,7 +78,7 @@ module draw_trackpoint_extension(
         // Adapter
         translate([adapter_radius, 0, adapter_radius])
         rotate([-90, 0, 0])
-            cylinder($fn=20, h=adapter_height,r=adapter_radius);
+            cylinder($fn=120, h=adapter_height,r=adapter_radius);
 
         // Hole
         translate([adapter_hole_offset, -ovb, adapter_hole_offset])
