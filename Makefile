@@ -17,6 +17,17 @@ OPENSCAD="/Applications/OpenSCAD Snapshot.app/Contents/MacOS/OpenSCAD" --enable=
 # Sets the parameter `adapter_hole_incr_default`
 HOLE_INCR ?= 0
 
+# How wide the adapter should be below and above the pcb.
+# Pay attention to the adapter wall thickness calculations in the logs to
+# ensure it is thick enough to withstand the pressure of the TP.
+#
+# You also need to consider the size of your TP hole, as well as how much your
+# switches are going to portrude into the hole.
+#
+# Sets the parameter `adapter_width_below_pcb` and `adapter_width_above_pcb`
+ADAPTER_WIDTH_BOTTOM ?= 0
+ADAPTER_WIDTH_TOP ?= 0
+
 # The height from the pcb to where you want the cap to end.
 # Sets the parameter `desired_cap_height`
 HEIGHT ?= 0
@@ -47,6 +58,22 @@ ifeq ($(HOLE_INCR),0)
 else
   HOLE_INCR_VAL=-D adapter_hole_incr_default=$(HOLE_INCR)
   HOLE_INCR_FNAME=_hw$(HOLE_INCR)
+endif
+
+ifeq ($(ADAPTER_WIDTH_BOTTOM),0)
+  ADAPTER_WIDTH_BOTTOM_VAL=
+  ADAPTER_WIDTH_BOTTOM_FNAME=
+else
+  ADAPTER_WIDTH_BOTTOM_VAL=-D adapter_width_below_pcb_default=$(ADAPTER_WIDTH_BOTTOM)
+  ADAPTER_WIDTH_BOTTOM_FNAME=_awb$(ADAPTER_WIDTH_BOTTOM)
+endif
+
+ifeq ($(ADAPTER_WIDTH_TOP),0)
+  ADAPTER_WIDTH_TOP_VAL=
+  ADAPTER_WIDTH_TOP_FNAME=
+else
+  ADAPTER_WIDTH_TOP_VAL=-D adapter_width_above_pcb_default=$(ADAPTER_WIDTH_TOP)
+  ADAPTER_WIDTH_TOP_FNAME=_awt$(ADAPTER_WIDTH_TOP)
 endif
 
 ifeq ($(HEIGHT),0)
@@ -81,8 +108,8 @@ else
   TIP_INCR_FNAME=_t$(TIP_INCR)
 endif
 
-PARAMS = $(HEIGHT_VAL) $(MOUNTING_DISTANCE_VAL) $(PCB_HEIGHT_VAL) $(HOLE_INCR_VAL) $(TIP_INCR_VAL)
-FNAME_POSTFIX = $(HEIGHT_FNAME)$(MOUNTING_DISTANCE_FNAME)$(PCB_HEIGHT_FNAME)$(HOLE_INCR_FNAME)$(TIP_INCR_FNAME)
+PARAMS = $(HEIGHT_VAL) $(MOUNTING_DISTANCE_VAL) $(PCB_HEIGHT_VAL) $(HOLE_INCR_VAL) $(TIP_INCR_VAL) $(ADAPTER_WIDTH_BOTTOM_VAL) $(ADAPTER_WIDTH_TOP_VAL)
+FNAME_POSTFIX = $(HEIGHT_FNAME)$(MOUNTING_DISTANCE_FNAME)$(PCB_HEIGHT_FNAME)$(ADAPTER_WIDTH_BOTTOM_FNAME)$(ADAPTER_WIDTH_TOP_FNAME)$(HOLE_INCR_FNAME)$(TIP_INCR_FNAME)
 
 # Pathes for combined
 COMBINED_STL_ARRAY=[]
@@ -144,6 +171,9 @@ help-text:
 	@echo
 	@echo "  HOLE_INCR=0.2"
 	@echo "    By how much you want to increase the adapter hole compared to the actual TP stem width."
+	@echo
+	@echo "  ADAPTER_WIDTH_BOTTOM=5 ADAPTER_WIDTH_TOP=4"
+	@echo "    The width of the stem adapter below and above the PCB."
 	@echo
 	@echo "  HEIGHT=10.5"
 	@echo "    The height from the pcb to where you want the cap to end."
