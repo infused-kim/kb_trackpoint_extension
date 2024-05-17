@@ -27,11 +27,7 @@ module draw_trackpoint_extension(
         tip_width_incr=0,
 
         // The thickness of the PCB
-        pcb_height=1.6,
-
-        // Whether to cut the front left and back right sides to make
-        // it easier to fit between switches
-        cut_sides=true) {
+        pcb_height=1.6) {
 
     adapter_width = 4;
     adapter_radius = adapter_width / 2;
