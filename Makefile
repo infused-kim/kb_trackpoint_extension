@@ -22,7 +22,7 @@ HOLE_INCR ?= 0
 # ensure it is thick enough to withstand the pressure of the TP.
 #
 # You also need to consider the size of your TP hole, as well as how much your
-# switches are going to portrude into the hole.
+# switches are going to protrude into the hole.
 #
 # Sets the parameter `adapter_width_below_pcb` and `adapter_width_above_pcb`
 ADAPTER_WIDTH_BOTTOM ?= 0
@@ -125,14 +125,17 @@ STL_DIR := stl
 # Create targets for files starting with `export_`
 EXPORT_SCAD_FILES := $(wildcard $(SRC_DIR)/export_*.scad)
 
-STL_TARGETS := $(patsubst $(SRC_DIR)/export_%.scad,$(STL_DIR)/%$(FNAME_POSTFIX).stl,$(EXPORT_SCAD_FILES))
+STL_TARGETS := $(patsubst $(SRC_DIR)/export_%.scad,%,$(EXPORT_SCAD_FILES))
 
-$(STL_DIR)/%$(FNAME_POSTFIX).stl: $(SRC_DIR)/export_%.scad $(SRC_DIR)/trackpoint_extension.scad
-	@echo "Building $@..."
-	@echo "> $(OPENSCAD_CMD) $(PARAMS) --render -o $@ $<\n" | tee $(STL_DIR)/$*$(FNAME_POSTFIX).log
-	@$(OPENSCAD_CMD) $(PARAMS) --render -o $@ $< 2>&1 | tee -a $(STL_DIR)/$*$(FNAME_POSTFIX).log
-	@echo
-	@echo
+all: $(STL_TARGETS) combined
+
+%: $(SRC_DIR)/export_%.scad $(SRC_DIR)/trackpoint_extension.scad
+	@output_file="$(STL_DIR)/$@$(FNAME_POSTFIX).stl"; \
+	echo "Building $$output_file..."; \
+	echo "> $(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $<\n" | tee $$output_file.log; \
+	$(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $< 2>&1 | tee -a $$output_file.log; \
+	echo; \
+	echo
 
 combined:
 	@echo "Building $@..."
@@ -141,12 +144,10 @@ combined:
 	@echo
 	@echo
 
-# Default target
-all: $(STL_TARGETS) combined
-
 # Remove generated STL files
 clean:
-	rm -f $(STL_TARGETS)
+	rm -f $(STL_DIR)/*.stl
+	rm -f $(STL_DIR)/*.log
 
 # Help target
 help: help-text targets
@@ -156,13 +157,14 @@ help-text:
 	@echo
 	@echo "  You can customize the output using the following parameters with any of the targets below..."
 	@echo
-	@echo "  To see the target names for the parameters you can run:"
-	@echo "    make targets HOLE_INCR=0.2 HEIGHT=10.5"
+	@echo "  To see the available targets run:"
+	@echo "    make targets"
 	@echo
 	@echo "  And then to run a target:"
-	@echo "    make stl/tp_red_t460s_h10.5_hw0.2.stl HOLE_INCR=0.2 HEIGHT=10.5"
+	@echo "    make tp_red_t460s HOLE_INCR=0.2 HEIGHT=10.5"
 	@echo
-	@echo "  The important thing is that the target name and parameters match."
+	@echo "  You can also run multiple targets with the same parameters at once:"
+	@echo "    make tp_red_t460s tp_green_t430 HOLE_INCR=0.2 HEIGHT=10.5"
 	@echo
 	@echo "  Or you can build all targets with:"
 	@echo "    make all HOLE_INCR=0.2 HEIGHT=10.5"
@@ -191,4 +193,13 @@ help-text:
 targets:
 	@echo "Available targets:"
 	@$(foreach target,$(STL_TARGETS),echo "  $(target)";)
+	@echo
+	@echo "  combined"
+	@echo "    Combines all .stl files in ./stl/ into one stl with sprues for printing at JLC3DP."
+	@echo
+	@echo "  all"
+	@echo "    Runs all targets (including combined)"
+	@echo
+	@echo "  clean"
+	@echo "    Removes all .stl and .log files from ./stl/."
 	@echo
