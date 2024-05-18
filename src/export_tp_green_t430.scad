@@ -56,7 +56,7 @@ tp_stem_diameter = 3.0;
 // TP dot dimensions
 tp_cap_height_total = 6.0;
 tp_cap_hole_height = 5.0;
-tp_cap_hole_width = 2.5;
+tp_cap_hole_width = tp_stem_width;
 
 
 module draw_tp_ext_green_t430(
