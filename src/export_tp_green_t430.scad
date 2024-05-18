@@ -99,4 +99,8 @@ module draw_tp_ext_green_t430(
     );
 }
 
-draw_tp_ext_green_t430();
+// Allow inclusion of this file without running if do_not_run is set to true
+// before the inclusion
+if(is_undef(do_not_run) || do_not_run == false) {
+    draw_tp_ext_green_t430();
+}

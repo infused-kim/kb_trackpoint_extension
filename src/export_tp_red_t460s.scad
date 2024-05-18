@@ -55,6 +55,9 @@ tp_stem_diameter = 3.0;
 // TP dot dimensions
 tp_cap_height_total = 4.0;
 tp_cap_hole_height = 3.0;
+
+// Since the tip is rubber, we can make it a little thicker than the original
+// stem for better fit
 tp_cap_hole_width = 2.5;
 
 
@@ -98,4 +101,8 @@ module draw_tp_ext_red_t460s(
     );
 }
 
-draw_tp_ext_red_t460s();
+// Allow inclusion of this file without running if do_not_run is set to true
+// before the inclusion
+if(is_undef(do_not_run) || do_not_run == false) {
+    draw_tp_ext_red_t460s();
+}
