@@ -120,7 +120,8 @@ OPENSCAD_CMD=$(OPENSCAD) $(OPENSCAD_OPTIONS)
 
 # Directories
 SRC_DIR := src
-STL_DIR := stl
+STL_DIR := stl/output
+LOG_DIR=$(STL_DIR)/logs
 
 # Create targets for files starting with `export_`
 EXPORT_SCAD_FILES := $(wildcard $(SRC_DIR)/export_*.scad)
@@ -131,9 +132,11 @@ all: $(STL_TARGETS) combined
 
 %: $(SRC_DIR)/export_%.scad $(SRC_DIR)/trackpoint_extension.scad
 	@output_file="$(STL_DIR)/$@$(FNAME_POSTFIX).stl"; \
+	log_file="$(LOG_DIR)/$@$(FNAME_POSTFIX).log"; \
+	mkdir -p "$(STL_DIR)" "$(LOG_DIR)"; \
 	echo "Building $$output_file..."; \
-	echo "> $(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $<\n" | tee $$output_file.log; \
-	$(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $< 2>&1 | tee -a $$output_file.log; \
+	echo "> $(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $<\n" | tee $$log_file.log; \
+	$(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $< 2>&1 | tee -a $$log_file.log; \
 	echo; \
 	echo
 
@@ -147,7 +150,7 @@ combined:
 # Remove generated STL files
 clean:
 	rm -f $(STL_DIR)/*.stl
-	rm -f $(STL_DIR)/*.log
+	rm -f $(LOG_DIR)/*.log
 
 # Help target
 help: help-text targets
@@ -195,11 +198,11 @@ targets:
 	@$(foreach target,$(STL_TARGETS),echo "  $(target)";)
 	@echo
 	@echo "  combined"
-	@echo "    Combines all .stl files in ./stl/ into one stl with sprues for printing at JLC3DP."
+	@echo "    Combines all .stl files in $(STL_DIR) into one stl with sprues for printing at JLC3DP."
 	@echo
 	@echo "  all"
 	@echo "    Runs all targets (including combined)"
 	@echo
 	@echo "  clean"
-	@echo "    Removes all .stl and .log files from ./stl/."
+	@echo "    Removes all .stl and .log files from $(STL_DIR)."
 	@echo
