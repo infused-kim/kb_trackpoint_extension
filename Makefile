@@ -135,8 +135,8 @@ all: $(STL_TARGETS) combined
 	log_file="$(LOG_DIR)/$@$(FNAME_POSTFIX).log"; \
 	mkdir -p "$(STL_DIR)" "$(LOG_DIR)"; \
 	echo "Building $$output_file..."; \
-	echo "> $(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $<\n" | tee $$log_file.log; \
-	$(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $< 2>&1 | tee -a $$log_file.log; \
+	echo "> $(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $<\n" | tee $$log_file; \
+	$(OPENSCAD_CMD) $(PARAMS) --render -o $$output_file $< 2>&1 | tee -a $$log_file; \
 	echo; \
 	echo
 
