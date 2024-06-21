@@ -6,8 +6,8 @@ OpenSCAD scripts that generate TrackPoint extensions that can be used in DIY key
 
 - [1. Photos](#1-photos)
 - [2. Print Instructions](#2-print-instructions)
-    - [2.1. Printing it yourself](#21-printing-it-yourself)
-    - [2.2. Printing using JLC 3DP](#22-printing-using-jlc-3dp)
+  - [2.1. Printing it yourself](#21-printing-it-yourself)
+  - [2.2. Printing using JLC 3DP](#22-printing-using-jlc-3dp)
 - [3. How to generate customized Extensions](#3-how-to-generate-customized-extensions)
 - [4. How to add new TrackPoint models](#4-how-to-add-new-trackpoint-models)
 - [5. Related Resources](#5-related-resources)
@@ -106,6 +106,12 @@ Parameters:
 
   TIP_INCR=0.3
     By how much you want to increase the tip for a tighter cap fit.
+
+  FOR_KICAD=true
+    Orientates the extension for better visualization in KiCad:
+      - Upwards
+      - Centered
+      - With mounting distance offset on the z axis
 
 Available targets:
   tp_green_t430

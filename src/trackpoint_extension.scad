@@ -31,7 +31,8 @@ module draw_trackpoint_extension(
         tip_width_incr=0,
 
         // The thickness of the PCB
-        pcb_height=1.6) {
+        pcb_height=1.6,
+        for_kicad=false) {
 
     adapter_radius_below_pcb = adapter_width_below_pcb / 2;
     adapter_radius_above_pcb = adapter_width_above_pcb / 2;
@@ -99,6 +100,22 @@ module draw_trackpoint_extension(
     echo(str("\t Adapter wall thickness above pcb: ", adapter_wall_thickness_above_pcb, "mm"));
     echo(str("\t Adapter wall thickness top: ", adapter_wall_thickness_top, "mm"));
 
+    // Places the upright, centered and moves it to the mounting distance.
+    // This makes the visualization in KiCad easier.
+    kicad_rotate = for_kicad == true ? [90, 0, 0] : [0, 0, 0];
+    kicad_transform = (
+        for_kicad == true
+        ? [
+            -adapter_radius_below_pcb,
+            -(tp_mounting_distance + pcb_height),
+            -adapter_radius_below_pcb
+        ]
+        : [0, 0, 0]
+    );
+
+    rotate(kicad_rotate)
+    translate(kicad_transform)
+    union() {
     difference() {
 
         union() {
@@ -143,4 +160,5 @@ module draw_trackpoint_extension(
     // Tip for red cap
     translate([+tip_offset, +adapter_height + extension_height, +tip_offset])
         cube([tip_width, tip_height, tip_width]);
+    }
 }

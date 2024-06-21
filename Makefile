@@ -46,6 +46,12 @@ PCB_HEIGHT ?= 0
 # Sets the parameter `tip_width_incr_default`
 TIP_INCR ?= 0
 
+# Orientates the extension for better visualization in KiCad:
+#  - Upwards
+#  - Centered
+#  - With mounting distance offset on the z axis
+FOR_KICAD ?= 0
+
 #
 # Don't change below
 #
@@ -108,8 +114,16 @@ else
   TIP_INCR_FNAME=_t$(TIP_INCR)
 endif
 
-PARAMS = $(HEIGHT_VAL) $(MOUNTING_DISTANCE_VAL) $(PCB_HEIGHT_VAL) $(HOLE_INCR_VAL) $(TIP_INCR_VAL) $(ADAPTER_WIDTH_BOTTOM_VAL) $(ADAPTER_WIDTH_TOP_VAL)
-FNAME_POSTFIX = $(HEIGHT_FNAME)$(MOUNTING_DISTANCE_FNAME)$(PCB_HEIGHT_FNAME)$(ADAPTER_WIDTH_BOTTOM_FNAME)$(ADAPTER_WIDTH_TOP_FNAME)$(HOLE_INCR_FNAME)$(TIP_INCR_FNAME)
+ifeq ($(FOR_KICAD),0)
+  FOR_KICAD_VAL=
+  FOR_KICAD_FNAME=
+else
+  FOR_KICAD_VAL=-D for_kicad_default=true
+  FOR_KICAD_FNAME=_kicad
+endif
+
+PARAMS = $(HEIGHT_VAL) $(MOUNTING_DISTANCE_VAL) $(PCB_HEIGHT_VAL) $(HOLE_INCR_VAL) $(TIP_INCR_VAL) $(ADAPTER_WIDTH_BOTTOM_VAL) $(ADAPTER_WIDTH_TOP_VAL) $(FOR_KICAD_VAL)
+FNAME_POSTFIX = $(HEIGHT_FNAME)$(MOUNTING_DISTANCE_FNAME)$(PCB_HEIGHT_FNAME)$(ADAPTER_WIDTH_BOTTOM_FNAME)$(ADAPTER_WIDTH_TOP_FNAME)$(HOLE_INCR_FNAME)$(TIP_INCR_FNAME)$(FOR_KICAD_FNAME)
 
 # Pathes for combined
 COMBINED_STL_ARRAY=[]
@@ -192,7 +206,12 @@ help-text:
 	@echo "  TIP_INCR=0.3"
 	@echo "    By how much you want to increase the tip for a tighter cap fit."
 	@echo
-
+	@echo "  FOR_KICAD=true"
+	@echo "    Orientates the extension for better visualization in KiCad:"
+	@echo "      - Upwards"
+	@echo "      - Centered"
+	@echo "      - With mounting distance offset on the z axis"
+	@echo
 targets:
 	@echo "Available targets:"
 	@$(foreach target,$(STL_TARGETS),echo "  $(target)";)

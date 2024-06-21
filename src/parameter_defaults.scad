@@ -24,3 +24,5 @@ adapter_width_above_pcb_default = 4;
 
 // By how much you want to increase the tip for a tighter cap fit
 tip_width_incr_default = 0;
+
+for_kicad_default = false;

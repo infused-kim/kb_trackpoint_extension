@@ -28,7 +28,6 @@ tp_cap_hole_height = 3.0;
 // stem for better fit
 tp_cap_hole_width = 2.5;
 
-
 module draw_tp_ext_red_t460s(
         desired_cap_height=desired_cap_height_default,
         tp_mounting_distance=tp_mounting_distance_default,
@@ -36,7 +35,8 @@ module draw_tp_ext_red_t460s(
         adapter_width_below_pcb=adapter_width_below_pcb_default,
         adapter_width_above_pcb=adapter_width_above_pcb_default,
         tip_width_incr=tip_width_incr_default,
-        pcb_height=pcb_height_default) {
+        pcb_height=pcb_height_default,
+        for_kicad=for_kicad_default) {
 
     draw_trackpoint_extension(
         desired_cap_height=desired_cap_height,
@@ -65,7 +65,10 @@ module draw_tp_ext_red_t460s(
         tip_width_incr=tip_width_incr,
 
         // The thickness of the PCB
-        pcb_height=pcb_height
+        pcb_height=pcb_height,
+
+        // Orientate the extension for visualization in KiCad
+        for_kicad=for_kicad
     );
 }
 
