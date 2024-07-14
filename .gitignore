@@ -1,1 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+
+# Environments
+.python-version
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# OS Files
 .DS_Store
+
+# Editors
+.vscode/*
+!.vscode/launch.json
+
+# Unneeded
+/tmp
+/NOTES.md
+
+# Temporary files while developing
+/_*.py
+
+# Exports
+stl/*
+exports/*
+!exports/.gitkeep
