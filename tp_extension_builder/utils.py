@@ -1,5 +1,10 @@
 import build123d as bd
-from typing import Any, List
+from typing import Any, List, Union
+
+AlignT = Union[
+    bd.Align,
+    tuple[bd.Align, bd.Align, bd.Align]
+]
 
 ALIGN_CENTER = (
     bd.Align.CENTER,

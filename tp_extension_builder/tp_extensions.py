@@ -1,7 +1,7 @@
 import build123d as bd
 import math
 
-from typing import Union, List, Optional
+from typing import cast, List, Optional
 
 from tp_extension_builder.tp_caps import (
     TrackPointCapBase,
@@ -12,6 +12,7 @@ from tp_extension_builder.tp_caps import (
 from tp_extension_builder.utils import (
     get_bd_debug_objects,
     ALIGN_CENTER_BOTTOM,
+    AlignT,
 )
 
 from tp_extension_builder.defines import (
@@ -44,10 +45,7 @@ class TrackPointExtensionBase(bd.BasePartObject):
                  label: str,
                  color: bd.Color = bd.Color('gray'),
                  rotation: bd.RotationLike = (0, 0, 0),
-                 align: Union[
-                     bd.Align,
-                     tuple[bd.Align, bd.Align, bd.Align]
-                 ] = ALIGN_CENTER_BOTTOM,
+                 align: AlignT = ALIGN_CENTER_BOTTOM,
                  mode: bd.Mode = bd.Mode.ADD,
                  ) -> None:
         context: bd.BuildPart = bd.BuildPart._get_context(self)
@@ -156,12 +154,7 @@ class TrackPointExtensionBase(bd.BasePartObject):
         '''
         return get_bd_debug_objects(self)
 
-    def _build_extension(self,
-                         align: Union[
-                             bd.Align,
-                             tuple[bd.Align, bd.Align, bd.Align]
-                         ] = ALIGN_CENTER_BOTTOM,
-                         ) -> bd.Shape:
+    def _build_extension(self) -> bd.Shape:
         with bd.BuildPart() as tp_extension:
 
             # Below PCB adapter
@@ -197,14 +190,14 @@ class TrackPointExtensionBase(bd.BasePartObject):
             bd.Box(
                 width=self._adapter_hole_width + self._adapter_hole_incr,
                 length=self._adapter_hole_width + self._adapter_hole_incr,
-                height=self._adapter_hole_height +  + self._adapter_hole_incr,
+                height=self._adapter_hole_height + self._adapter_hole_incr,
                 mode=bd.Mode.SUBTRACT,
                 align=ALIGN_CENTER_BOTTOM,
             )
 
         tp_extension = tp_extension.part
 
-        return tp_extension
+        return cast(bd.Shape, tp_extension)
 
 
 #
@@ -224,10 +217,7 @@ class TrackPointExtensionRedT460S(TrackPointExtensionBase):
                  tp_cap: Optional[TrackPointCapBase] = None,
                  color: bd.Color = bd.Color('gray'),
                  rotation: bd.RotationLike = (0, 0, 0),
-                 align: Union[
-                     bd.Align,
-                     tuple[bd.Align, bd.Align, bd.Align]
-                 ] = ALIGN_CENTER_BOTTOM,
+                 align: AlignT = ALIGN_CENTER_BOTTOM,
                  mode: bd.Mode = bd.Mode.ADD,
                  ) -> None:
 
@@ -283,10 +273,7 @@ class TrackPointExtensionGreenT430(TrackPointExtensionBase):
                  tp_cap: Optional[TrackPointCapBase] = None,
                  color: bd.Color = bd.Color('gray'),
                  rotation: bd.RotationLike = (0, 0, 0),
-                 align: Union[
-                     bd.Align,
-                     tuple[bd.Align, bd.Align, bd.Align]
-                 ] = ALIGN_CENTER_BOTTOM,
+                 align: AlignT = ALIGN_CENTER_BOTTOM,
                  mode: bd.Mode = bd.Mode.ADD,
                  ) -> None:
 

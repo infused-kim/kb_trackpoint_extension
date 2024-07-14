@@ -242,7 +242,7 @@ def build(trackpoint_model: ArgTrackPointModel,
 
     if interactive is False:
         if export_path is None:
-            export_path = get_export_path(f'{trackpoint_model}')
+            export_path = str(get_export_path(f'{trackpoint_model}'))
         export_format.export(tp_extension, export_path)
     else:
         from ocp_vscode import show

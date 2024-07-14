@@ -1,11 +1,11 @@
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Type, Union
 
 if TYPE_CHECKING:
     # Importing these classes causes build123d to be imported, which is very
     # slow. So we only import it when it is needed and during type checking.
-    from build123d import Shape, export_step, export_stl
+    from build123d import Shape
     from tp_extension_builder.tp_extensions import (
         TrackPointExtensionRedT460S,
         TrackPointExtensionGreenT430,
@@ -14,6 +14,8 @@ if TYPE_CHECKING:
         TrackPointCapRedT460S,
         TrackPointCapGreenT430,
     )
+
+
 #
 # Selecting TPs and Caps
 #
@@ -24,8 +26,8 @@ class TrackPointModel(str, Enum):
 
     @property
     def build_extension(self) -> Union[
-                                    'TrackPointExtensionRedT460S',
-                                    'TrackPointExtensionGreenT430',
+                                    Type['TrackPointExtensionRedT460S'],
+                                    Type['TrackPointExtensionGreenT430'],
                                  ]:
         # Importing these classes causes build123d to be imported, which is
         # very slow. So we do it only when it's actually needed.
@@ -37,12 +39,17 @@ class TrackPointModel(str, Enum):
             TrackPointModel.tp_red_t460s: TrackPointExtensionRedT460S,
             TrackPointModel.tp_green_t430: TrackPointExtensionGreenT430,
         }
-        return mapping.get(self)
+
+        extension = mapping.get(self)
+        if extension is None:
+            raise ValueError(f'Cannot build extension for {self}')
+
+        return extension
 
     @property
     def build_cap(self) -> Union[
-                                'TrackPointCapRedT460S',
-                                'TrackPointCapGreenT430',
+                                Type['TrackPointCapGreenT430'],
+                                Type['TrackPointCapRedT460S'],
                            ]:
         from tp_extension_builder.tp_caps import (
             TrackPointCapRedT460S,
@@ -52,7 +59,13 @@ class TrackPointModel(str, Enum):
             TrackPointModel.tp_red_t460s: TrackPointCapRedT460S,
             TrackPointModel.tp_green_t430: TrackPointCapGreenT430,
         }
-        return mapping.get(self)
+
+        cap = mapping.get(self)
+        if cap is None:
+            raise ValueError(
+                f'Cannot build cap for {self}'
+            )
+        return cap
 
 
 class ExportFormat(str, Enum):
@@ -64,11 +77,20 @@ class ExportFormat(str, Enum):
         Exports a shape using the selected format's build123d exporter
         function.
         '''
+        from build123d import (
+            export_step,
+            export_stl,
+        )
+
         file_path = self.add_extension_to_path(file_path)
 
         print(f'Exporting to {file_path} ...')
-
-        self._bd_export_func(to_export, file_path)
+        if self is ExportFormat.step:
+            export_step(to_export, file_path)
+        elif self is ExportFormat.stl:
+            export_stl(to_export, file_path)
+        else:
+            raise ValueError(f'{self} is not a supported export format')
 
     def add_extension_to_path(self, file_path: str) -> str:
         '''
@@ -78,20 +100,7 @@ class ExportFormat(str, Enum):
         new_path = Path(file_path)
         new_path.with_suffix(f'.{self}')
 
-    @property
-    def _bd_export_func(self) -> Union['export_step', 'export_stl']:
-        '''
-        Returns the build123d export function for the selected format.
-        '''
-        from build123d import (
-            export_step,
-            export_stl,
-        )
-        mapping = {
-            ExportFormat.step: export_step,
-            ExportFormat.stl: export_stl,
-        }
-        return mapping.get(self)
+        return str(new_path)
 
 
 #

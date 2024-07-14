@@ -1,11 +1,12 @@
 import build123d as bd
 
-from typing import Optional, Iterable, List, Tuple, Union, cast, Any
+from typing import cast, List
 
 from tp_extension_builder.utils import (
     get_bd_debug_objects,
     ALIGN_CENTER_TOP,
     ALIGN_CENTER_BOTTOM,
+    AlignT,
 )
 
 
@@ -44,10 +45,7 @@ class TrackPointCapBase(bd.BasePartObject):
         label: str = 'TrackPoint Cap',
         color: bd.Color = bd.Color('red'),
         rotation: bd.RotationLike = (0, 0, 0),
-        align: Union[
-            bd.Align,
-            tuple[bd.Align, bd.Align, bd.Align]
-        ] = ALIGN_CENTER_BOTTOM,
+        align: AlignT = ALIGN_CENTER_BOTTOM,
         mode: bd.Mode = bd.Mode.ADD,
     ):
         context: bd.BuildPart = bd.BuildPart._get_context(self)
@@ -134,10 +132,7 @@ class TrackPointCapBase(bd.BasePartObject):
         return get_bd_debug_objects(self)
 
     def build_cap_adapter(self,
-                          align: Union[
-                              bd.Align,
-                              tuple[bd.Align, bd.Align, bd.Align]
-                          ] = ALIGN_CENTER_BOTTOM,) -> bd.Shape:
+                          align: AlignT = ALIGN_CENTER_BOTTOM,) -> bd.Shape:
         with bd.BuildPart() as cap_adapter:
             bd.Box(
                 length=self.cap_adapter_length,
@@ -148,15 +143,16 @@ class TrackPointCapBase(bd.BasePartObject):
         cap_adapter = cap_adapter.part
         cap_adapter.label = 'Cap Adapter'
 
-        return cap_adapter
+        return cast(bd.Shape, cap_adapter)
 
     def _build_dome(self,
-                    diameter,
-                    height,
-                    dot_height=DEFAULT_DOME_DOT_HEIGHT,
-                    dot_radius=DEFAULT_DOME_DOT_RADIUS,
-                    dot_spacing=DEFAULT_DOME_DOT_SPACING,
-                    dot_rows=DEFAULT_DOME_DOT_ROWS):
+                    diameter: float,
+                    height: float,
+                    dot_height: float = DEFAULT_DOME_DOT_HEIGHT,
+                    dot_radius: float = DEFAULT_DOME_DOT_RADIUS,
+                    dot_spacing: float = DEFAULT_DOME_DOT_SPACING,
+                    dot_rows: List[int] = DEFAULT_DOME_DOT_ROWS,
+                    ) -> bd.Shape:
         radius = diameter / 2
 
         with bd.BuildPart() as dome:
@@ -213,9 +209,12 @@ class TrackPointCapBase(bd.BasePartObject):
         dome = dome.part
         dome.label = 'Cap Dome'
 
-        return dome
+        return cast(bd.Shape, dome)
 
-    def _build_base(self, diameter, height, align=ALIGN_CENTER_TOP):
+    def _build_base(self,
+                    diameter: float,
+                    height: float,
+                    align: AlignT = ALIGN_CENTER_TOP) -> bd.Shape:
         radius = diameter / 2
 
         with bd.BuildPart() as base:
@@ -227,16 +226,13 @@ class TrackPointCapBase(bd.BasePartObject):
         base = base.part
         base.label = 'Cap Base'
 
-        return base
+        return cast(bd.Shape, base)
 
 
 class TrackPointCapRedT460S(TrackPointCapBase):
     def __init__(self,
                  rotation: bd.RotationLike = (0, 0, 0),
-                 align: Union[
-                     bd.Align,
-                     tuple[bd.Align, bd.Align, bd.Align]
-                 ] = ALIGN_CENTER_BOTTOM,
+                 align: AlignT = ALIGN_CENTER_BOTTOM,
                  mode: bd.Mode = bd.Mode.ADD):
 
         super().__init__(
@@ -264,10 +260,7 @@ class TrackPointCapRedT460S(TrackPointCapBase):
 class TrackPointCapGreenT430(TrackPointCapBase):
     def __init__(self,
                  rotation: bd.RotationLike = (0, 0, 0),
-                 align: Union[
-                     bd.Align,
-                     tuple[bd.Align, bd.Align, bd.Align]
-                 ] = ALIGN_CENTER_BOTTOM,
+                 align: AlignT = ALIGN_CENTER_BOTTOM,
                  mode: bd.Mode = bd.Mode.ADD):
 
         super().__init__(
