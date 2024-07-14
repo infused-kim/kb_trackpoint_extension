@@ -3,12 +3,12 @@
 # %% Init
 import build123d as bd
 import ocp_vscode as ocp
-from tp_extension_builder.tp_cap_builder import (
+from tp_extension_builder.tp_caps import (
     TrackPointCapRedT460S,
     TrackPointCapGreenT430,
 )
 
-from tp_extension_builder.tp_extension_builder import (
+from tp_extension_builder.tp_extensions import (
     TrackPointExtensionRedT460S,
 )
 

@@ -1,9 +1,9 @@
 import build123d as bd
 import math
 
-from typing import Union, List
+from typing import Union, List, Optional
 
-from tp_extension_builder.tp_cap_builder import (
+from tp_extension_builder.tp_caps import (
     TrackPointCapBase,
     TrackPointCapRedT460S,
     TrackPointCapGreenT430,
@@ -30,9 +30,9 @@ from tp_extension_builder.defines import (
 class TrackPointExtensionBase(bd.BasePartObject):
 
     def __init__(self,
+                 adapter_hole_incr: float,
                  desired_cap_height: float,
                  tp_mounting_distance: float,
-                 adapter_hole_incr: float,
                  adapter_width_below_pcb: float,
                  adapter_width_above_pcb: float,
                  extension_width: float,
@@ -213,14 +213,15 @@ class TrackPointExtensionBase(bd.BasePartObject):
 
 class TrackPointExtensionRedT460S(TrackPointExtensionBase):
     def __init__(self,
+                 adapter_hole_incr: float,
                  desired_cap_height: float,
                  tp_mounting_distance: float,
-                 adapter_hole_incr: float,
                  adapter_width_below_pcb: float = D_ADAPTER_WIDTH_BELOW_PCB,
                  adapter_width_above_pcb: float = D_ADAPTER_WIDTH_ABOVE_PCB,
                  extension_width: float = D_EXTENSION_WIDTH,
                  pcb_height: float = D_PCB_HEIGHT,
                  space_above_pcb: float = CHOC_SWITCH_MOUNTING_NOTCH_HEIGHT,
+                 tp_cap: Optional[TrackPointCapBase] = None,
                  color: bd.Color = bd.Color('gray'),
                  rotation: bd.RotationLike = (0, 0, 0),
                  align: Union[
@@ -230,7 +231,8 @@ class TrackPointExtensionRedT460S(TrackPointExtensionBase):
                  mode: bd.Mode = bd.Mode.ADD,
                  ) -> None:
 
-        tp_cap = TrackPointCapRedT460S()
+        if tp_cap is None:
+            tp_cap = TrackPointCapRedT460S()
 
         # Height from bottom metal part to stem top
         tp_total_height = 4.0
@@ -246,9 +248,9 @@ class TrackPointExtensionRedT460S(TrackPointExtensionBase):
 
         super().__init__(
                  # User Settings
+                 adapter_hole_incr=adapter_hole_incr,
                  desired_cap_height=desired_cap_height,
                  tp_mounting_distance=tp_mounting_distance,
-                 adapter_hole_incr=adapter_hole_incr,
                  adapter_width_below_pcb=adapter_width_below_pcb,
                  adapter_width_above_pcb=adapter_width_above_pcb,
                  extension_width=extension_width,
@@ -270,14 +272,15 @@ class TrackPointExtensionRedT460S(TrackPointExtensionBase):
 
 class TrackPointExtensionGreenT430(TrackPointExtensionBase):
     def __init__(self,
+                 adapter_hole_incr: float,
                  desired_cap_height: float,
                  tp_mounting_distance: float,
-                 adapter_hole_incr: float,
                  adapter_width_below_pcb: float = D_ADAPTER_WIDTH_BELOW_PCB,
                  adapter_width_above_pcb: float = D_ADAPTER_WIDTH_ABOVE_PCB,
                  extension_width: float = D_EXTENSION_WIDTH,
                  pcb_height: float = D_PCB_HEIGHT,
                  space_above_pcb: float = CHOC_SWITCH_MOUNTING_NOTCH_HEIGHT,
+                 tp_cap: Optional[TrackPointCapBase] = None,
                  color: bd.Color = bd.Color('gray'),
                  rotation: bd.RotationLike = (0, 0, 0),
                  align: Union[
@@ -287,7 +290,8 @@ class TrackPointExtensionGreenT430(TrackPointExtensionBase):
                  mode: bd.Mode = bd.Mode.ADD,
                  ) -> None:
 
-        tp_cap = TrackPointCapGreenT430()
+        if tp_cap is None:
+            tp_cap = TrackPointCapGreenT430()
 
         # Height from bottom metal part to stem top
         tp_total_height = 5.0
@@ -303,9 +307,9 @@ class TrackPointExtensionGreenT430(TrackPointExtensionBase):
 
         super().__init__(
                  # User Settings
+                 adapter_hole_incr=adapter_hole_incr,
                  desired_cap_height=desired_cap_height,
                  tp_mounting_distance=tp_mounting_distance,
-                 adapter_hole_incr=adapter_hole_incr,
                  adapter_width_below_pcb=adapter_width_below_pcb,
                  adapter_width_above_pcb=adapter_width_above_pcb,
                  extension_width=extension_width,
