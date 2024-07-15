@@ -2,6 +2,7 @@ import build123d as bd
 import inspect
 import math
 
+from copy import copy
 from typing import cast, Any, List, Dict, Optional
 
 from tp_extension_builder.tp_caps import (
@@ -14,6 +15,7 @@ from tp_extension_builder.utils import (
     get_bd_debug_objects,
     ALIGN_CENTER_BOTTOM,
     AlignT,
+    align_shape,
 )
 
 from tp_extension_builder.defines import (
@@ -299,6 +301,46 @@ class TrackPointExtensionBase(bd.BasePartObject):
         Returns a list of build123d objects for debugging in ocp_viewer.
         '''
         return get_bd_debug_objects(self)
+
+    def for_kicad(self, include_cap: bool = True) -> bd.Shape:
+        tp_extension = align_shape(
+            self,
+            ALIGN_CENTER_BOTTOM,
+        )
+
+        # Rotate into original position
+        tp_extension.locate(bd.Location(
+            tp_extension.position,
+            (0, 0, 0),
+        ))
+
+        if include_cap is True:
+
+            # Move cap to top of extension tip
+            tp_cap = copy(tp_extension._tp_cap)
+            tp_cap.move(bd.Location((
+                0,
+                0,
+                tp_extension._total_height - tp_cap.hole_depth,
+            )))
+
+            tp_extension = bd.Compound(
+                label='TrackPoint Extension',
+                shapes=[],
+                children=[
+                    tp_extension,
+                    tp_cap,
+                ]
+            )
+
+        # Move extension to mounting distance
+        tp_extension.move(bd.Location((
+            0,
+            0,
+            -self._pcb_height - self._tp_mounting_distance
+        )))
+
+        return tp_extension
 
     def _build_extension(self) -> bd.Shape:
         with bd.BuildPart() as tp_extension:

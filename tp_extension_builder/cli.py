@@ -262,7 +262,89 @@ def build(trackpoint_model: ArgTrackPointModel,
         export_format.export(tp_extension, export_path, export_overwrite)
     else:
         from ocp_vscode import show
+        print('Showing extension in VSCode OCP Viewer...')
         show(tp_extension, measure_tools=True)
+
+
+#
+# KiCad Model Command
+#
+
+OptIncludeCap = Annotated[
+    bool,
+    typer.Option(
+        '--cap/--no-cap', '--c/--nc',
+        help=(
+            'Allows you to include or exclude the red TrackPoint cap.'
+        )
+    )
+]
+
+
+@app.command(
+    help=(
+        'Creates a 3D model of the extension and cap that can be used in '
+        'KiCad. The model is positioned at the mounting distance.'
+    ),
+    no_args_is_help=True,
+)
+def build_kicad_model(
+        trackpoint_model: ArgTrackPointModel,
+
+        export_path: OptExportPath = D_EXPORT_PATH_KICAD,
+        export_format: OptExportFormat = ExportFormat.step,
+        export_overwrite: OptExportOverwrite = False,
+        interactive: OptInteractive = False,
+        include_cap: OptIncludeCap = True,
+        adapter_hole_incr: OptAdapterHoleIncr = D_ADAPTER_HOLE_INCR,
+        desired_cap_height: OptDesiredCapHeight = CHOC_KEYCAP_HEIGHT,
+        tp_mounting_distance: OptMountingDistance = D_MOUNTING_DISTANCE,
+        pcb_height: OptPcbHeight = D_PCB_HEIGHT,
+        space_above_pcb: OptSpaceAbovePCB = (
+            CHOC_SWITCH_MOUNTING_NOTCH_HEIGHT
+        ),
+        adapter_width_below_pcb: OptAdapterWidthBelowPCB = (
+            D_ADAPTER_WIDTH_BELOW_PCB
+        ),
+        adapter_width_above_pcb: OptAdapterWidthAbovePCB = (
+            D_ADAPTER_WIDTH_ABOVE_PCB
+        ),
+        extension_width: OptExtensionWidth = D_EXTENSION_WIDTH,
+        tp_cap_model: OptCapModel = None,
+        ) -> None:
+
+    print('Generating extension...')
+    tp_cap = None
+    if tp_cap_model is not None:
+        tp_cap = tp_cap_model.build_cap()
+
+    if export_format is None:
+        export_format = ExportFormat.step
+
+    tp_extension = trackpoint_model.build_extension(
+                 adapter_hole_incr=adapter_hole_incr,
+                 desired_cap_height=desired_cap_height,
+                 tp_mounting_distance=tp_mounting_distance,
+                 adapter_width_below_pcb=adapter_width_below_pcb,
+                 adapter_width_above_pcb=adapter_width_above_pcb,
+                 extension_width=extension_width,
+                 pcb_height=pcb_height,
+                 space_above_pcb=space_above_pcb,
+                 tp_cap=tp_cap,
+    )
+
+    kicad_model = tp_extension.for_kicad(include_cap=include_cap)
+
+    print(f'\n{tp_extension.info}\n')
+
+    if interactive is False:
+        if export_path is None:
+            export_path = str(get_export_path(f'{trackpoint_model}'))
+        export_format.export(kicad_model, export_path, export_overwrite)
+    else:
+        from ocp_vscode import show
+        print('Showing extension in VSCode OCP Viewer...')
+        show(kicad_model, measure_tools=True)
 
 
 #
@@ -342,7 +424,10 @@ OptSprueOffsetZ = Annotated[
 
 
 @app.command(
-    help='Combines multiple stl or step files into one sprued file.',
+    help=(
+        'Combines multiple stl or step files into one (optionally) sprued '
+        'file.'
+    ),
     no_args_is_help=True,
 )
 def combine(files_to_combine: ArgCombineFileList,
@@ -402,6 +487,7 @@ def combine(files_to_combine: ArgCombineFileList,
         export_format.export(shapes_sprued, export_path, export_overwrite)
     else:
         from ocp_vscode import show
+        print('Showing extension in VSCode OCP Viewer...')
         show(shapes_sprued, measure_tools=True)
 
 
