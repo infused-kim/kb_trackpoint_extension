@@ -62,6 +62,14 @@ OptExportFormat = Annotated[
     )
 ]
 
+OptExportOverwrite = Annotated[
+    bool,
+    typer.Option(
+        '--overwrite/--ask-before-overwriting',
+        help='The format for the export.',
+    )
+]
+
 OptInteractive = Annotated[
     bool,
     typer.Option(
@@ -207,6 +215,7 @@ def build(trackpoint_model: ArgTrackPointModel,
 
           export_path: OptExportPath = D_EXPORT_PATH_STR,
           export_format: OptExportFormat = ExportFormat.stl,
+          export_overwrite: OptExportOverwrite = False,
           interactive: OptInteractive = False,
           adapter_hole_incr: OptAdapterHoleIncr = D_ADAPTER_HOLE_INCR,
           desired_cap_height: OptDesiredCapHeight = CHOC_KEYCAP_HEIGHT,
@@ -250,7 +259,7 @@ def build(trackpoint_model: ArgTrackPointModel,
     if interactive is False:
         if export_path is None:
             export_path = str(get_export_path(f'{trackpoint_model}'))
-        export_format.export(tp_extension, export_path)
+        export_format.export(tp_extension, export_path, export_overwrite)
     else:
         from ocp_vscode import show
         show(tp_extension, measure_tools=True)
@@ -339,6 +348,7 @@ OptSprueOffsetZ = Annotated[
 def combine(files_to_combine: ArgCombineFileList,
             export_path: OptExportPath = D_EXPORT_PATH_COMBINED,
             export_format: OptExportFormat = None,
+            export_overwrite: OptExportOverwrite = False,
             interactive: OptInteractive = False,
             shape_distance: OptCombineShapeDistance = 0.5,
             add_sprue: OptAddSprue = True,
@@ -389,7 +399,7 @@ def combine(files_to_combine: ArgCombineFileList,
     )
 
     if interactive is False:
-        export_format.export(shapes_sprued, export_path)
+        export_format.export(shapes_sprued, export_path, export_overwrite)
     else:
         from ocp_vscode import show
         show(shapes_sprued, measure_tools=True)

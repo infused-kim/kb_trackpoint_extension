@@ -1,3 +1,6 @@
+import typer
+import os
+
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Type, Union
@@ -72,7 +75,10 @@ class ExportFormat(str, Enum):
     step = "step"
     stl = "stl"
 
-    def export(self, to_export: 'Shape', file_path: str) -> None:
+    def export(self,
+               to_export: 'Shape',
+               file_path: str,
+               overwrite: bool = False) -> None:
         '''
         Exports a shape using the selected format's build123d exporter
         function.
@@ -85,6 +91,12 @@ class ExportFormat(str, Enum):
         file_path = self.add_extension_to_path(file_path)
 
         print(f'Exporting to {file_path} ...')
+        if os.path.exists(file_path) is True and overwrite is False:
+            typer.confirm(
+                'The file already exist. Do you want to overwrite it?',
+                abort=True,
+            )
+
         if self is ExportFormat.step:
             export_step(to_export, file_path)
         elif self is ExportFormat.stl:
