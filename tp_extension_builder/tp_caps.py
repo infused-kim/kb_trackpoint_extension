@@ -38,11 +38,11 @@ class TrackPointCapBase(bd.BasePartObject):
         hole_depth: float,
         cap_adapter_width_decrease: float,
         cap_adapter_length_decrease: float,
+        model: str,
         dome_dot_height: float = DEFAULT_DOME_DOT_HEIGHT,
         dome_dot_radius: float = DEFAULT_DOME_DOT_RADIUS,
         dome_dot_spacing: float = DEFAULT_DOME_DOT_SPACING,
         dome_dot_rows: list[int] = DEFAULT_DOME_DOT_ROWS,
-        label: str = 'TrackPoint Cap',
         color: bd.Color = bd.Color('red'),
         rotation: bd.RotationLike = (0, 0, 0),
         align: AlignT = ALIGN_CENTER_BOTTOM,
@@ -88,6 +88,8 @@ class TrackPointCapBase(bd.BasePartObject):
             - self.hole_depth
         )
 
+        self.model = model
+
         base_height_total = base_height + (self.dome_height / 2)
 
         with bd.BuildPart() as tp_cap:
@@ -121,7 +123,7 @@ class TrackPointCapBase(bd.BasePartObject):
             mode=mode,
         )
 
-        self.label = label
+        self.label = f'TP Cap - {self.model}'
         self.color = color
 
     @property
@@ -250,7 +252,7 @@ class TrackPointCapRedT460S(TrackPointCapBase):
             cap_adapter_length_decrease=0.0,
             cap_adapter_width_decrease=0.0,
 
-            label='TrackPoint Cap - T460S',
+            model='Green T460S',
             rotation=rotation,
             align=bd.tuplify(align, 3),
             mode=mode,
@@ -277,7 +279,7 @@ class TrackPointCapGreenT430(TrackPointCapBase):
             cap_adapter_length_decrease=0.2,
             cap_adapter_width_decrease=0.2,
 
-            label='TrackPoint Cap - T430',
+            model='Green T430',
             rotation=rotation,
             align=bd.tuplify(align, 3),
             mode=mode,

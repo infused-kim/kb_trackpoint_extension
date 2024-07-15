@@ -1,7 +1,8 @@
 import build123d as bd
+import inspect
 import math
 
-from typing import cast, List, Optional
+from typing import cast, Any, List, Dict, Optional
 
 from tp_extension_builder.tp_caps import (
     TrackPointCapBase,
@@ -42,7 +43,7 @@ class TrackPointExtensionBase(bd.BasePartObject):
                  tp_cap: TrackPointCapBase,
                  tp_stem_width: float,
                  tp_stem_height: float,
-                 label: str,
+                 model: str,
                  color: bd.Color = bd.Color('gray'),
                  rotation: bd.RotationLike = (0, 0, 0),
                  align: AlignT = ALIGN_CENTER_BOTTOM,
@@ -84,24 +85,6 @@ class TrackPointExtensionBase(bd.BasePartObject):
             self._tp_stem_height
             + self._adapter_hole_incr
         )
-        self._adapter_hole_corner_distance = (
-            math.sqrt(
-                self._adapter_hole_width * self._adapter_hole_width
-                + self._adapter_hole_width * self._adapter_hole_width
-            ) / 2
-        )
-        self._adapter_wall_thickness_below_pcb = (
-            self._adapter_width_below_pcb/2
-            - self._adapter_hole_corner_distance
-        )
-        self._adapter_wall_thickness_above_pcb = (
-            self._adapter_width_above_pcb/2
-            - self._adapter_hole_corner_distance
-        )
-        self._adapter_wall_thickness_top = (
-            self._adapter_height
-            - self._adapter_hole_height
-        )
 
         # Since a portion of the extension adapter will be below the top of the
         # pcb, we calculate the length that it will extend above the pcb here
@@ -126,16 +109,20 @@ class TrackPointExtensionBase(bd.BasePartObject):
             + self._extension_height
             + self._tp_cap.cap_adapter_height
         )
-        self._above_pcb_height = (
-            self._total_height
-            - self._adapter_height_below_pcb
-        )
-        self._above_pcb_height_with_cap = (
-            self._above_pcb_height
-            + self._tp_cap.cap_extra_height
-        )
+
+        self.model = model
 
         extension = self._build_extension()
+
+        self._init_params = self._get_init_params(
+            exclude_list=[
+                'color',
+                'rotation',
+                'align',
+                'mode',
+                'tp_cap'
+            ]
+        )
 
         super().__init__(
             part=extension,
@@ -144,8 +131,167 @@ class TrackPointExtensionBase(bd.BasePartObject):
             mode=mode,
         )
 
-        self.label = label
+        self.label = f'TP Extension - {self.model}'
         self.color = color
+
+    def _get_init_params(self,
+                         exclude_list: Optional[List[str]] = None,
+                         ) -> Dict[str, Any]:
+        if exclude_list is None:
+            exclude_list = []
+        if 'self' not in exclude_list:
+            exclude_list.append('self')
+
+        frame = inspect.currentframe()
+        if not frame or not frame.f_back or not frame.f_back.f_back:
+            return {}
+        else:
+            frame = frame.f_back.f_back
+
+        args, _, _, values = inspect.getargvalues(frame)
+        params = {
+            arg: values[arg]
+            for arg in args
+            if arg not in exclude_list
+        }
+
+        return params
+
+    @property
+    def info(self) -> str:
+
+        size = self.bounding_box().size
+        cap_size = self._tp_cap.bounding_box().size
+        cap_height_incr = cap_size.Z - self._tp_cap.hole_depth
+
+        above_pcb_height = (
+            self._total_height
+            - self._adapter_height_below_pcb
+        )
+        above_pcb_height_with_cap = (
+            above_pcb_height
+            + self._tp_cap.cap_extra_height
+        )
+
+        adapter_hole_corner_distance = (
+            math.sqrt(
+                self._adapter_hole_width * self._adapter_hole_width
+                + self._adapter_hole_width * self._adapter_hole_width
+            )
+        )
+        adapter_wall_thickness_below_pcb = (
+            (
+                self._adapter_width_below_pcb
+                - self._adapter_hole_width
+            ) / 2
+        )
+        adapter_wall_thickness_above_pcb = (
+            (
+                self._adapter_width_above_pcb
+                - self._adapter_hole_width
+            ) / 2
+        )
+        adapter_corner_wall_thickness_below_pcb = (
+            (
+                self._adapter_width_below_pcb
+                - adapter_hole_corner_distance
+            ) / 2
+        )
+        adapter_corner_wall_thickness_above_pcb = (
+            (
+                self._adapter_width_above_pcb
+                - adapter_hole_corner_distance
+            ) / 2
+        )
+        adapter_corner_wall_thickness_top = (
+            self._adapter_height
+            - self._adapter_hole_height
+        )
+
+        parameters = '\n'.join([
+            f'\t{k}: {v}'
+            for k, v in self._init_params.items()
+        ])
+
+        def fv(value: float,
+               format_str: str = '.2f',
+               units: str = 'mm') -> str:
+            return f'{value:{format_str}}{units}'
+
+        info_list = [
+            'Info:',
+            f'\t TrackPoint Model: {self.model}',
+            f'\t Cap Model: {self._tp_cap.model}',
+            '',
+            'Parameters:',
+            f'{parameters}',
+            '',
+            'General Size:',
+            f'\tTotal Height: {fv(size.Z)}',
+            f'\tTotal Width: {fv(max(size.Y, size.X))}',
+            f'\tAbove PCB Height: {fv(above_pcb_height)}',
+            f'\tAbove PCB Height (With Cap): {fv(above_pcb_height_with_cap)}',
+            '',
+            'Adapter Hole:',
+            (
+                f'\t Width: {fv(self._adapter_hole_width)} '
+                f'({fv(self._adapter_hole_incr, "+.2f")})'
+            ),
+            (
+                f'\t Depth: {fv(self._adapter_hole_height)} '
+                f'({fv(self._adapter_hole_incr, "+.2f")})'
+            ),
+            f'\t Corner Distance: {fv(adapter_hole_corner_distance)}',
+            '',
+            'Adapter:',
+            f'\t Total Height: {fv(self._adapter_height)}',
+            '',
+            f'\t Below PCB Height  {fv(self._adapter_height_below_pcb)}',
+            f'\t Below PCB Width: {fv(self._adapter_width_below_pcb)}',
+            (
+                f'\t Below PCB Wall Thickness: '
+                f'{fv(adapter_wall_thickness_below_pcb)}'
+            ),
+            (
+                f'\t Below PCB Wall Thickness Corners: '
+                f'{fv(adapter_corner_wall_thickness_below_pcb)}'
+            ),
+            '',
+            f'\t Above PCB Height: {fv(self._adapter_height_above_pcb)}',
+            f'\t Above PCB Width: {fv(self._adapter_width_above_pcb)}',
+            (
+                f'\t Above PCB Wall Thickness: '
+                f'{fv(adapter_wall_thickness_above_pcb)}'
+            ),
+            (
+                f'\t Above PCB Wall Thickness Corners: '
+                f'{fv(adapter_corner_wall_thickness_above_pcb)}'
+            ),
+            '',
+            f'\t Top Wall Thickness: {fv(adapter_corner_wall_thickness_top)}',
+            '',
+            'Extension:',
+            f'\t Height: {fv(self._extension_height)}',
+            f'\t Width: {fv(self._extension_width)}',
+            '',
+            'Cap Adapter:',
+            f'\t Height: {fv(self._tp_cap.cap_adapter_height)}',
+            f'\t Width: {fv(self._tp_cap.cap_adapter_width)}',
+            f'\t Length: {fv(self._tp_cap.cap_adapter_length)}',
+            '',
+            'Cap:',
+            f'\t Hole Depth: {fv(self._tp_cap.hole_depth)}',
+            f'\t Hole Width: {fv(self._tp_cap.hole_width)}',
+            f'\t Hole Length: {fv(self._tp_cap.hole_length)}',
+            f'\t Cap Height: {fv(cap_size.Z)}',
+            f'\t Cap Width: {fv(max(cap_size.X, cap_size.Y))}',
+            f'\t Cap Height Increase: {fv(cap_height_incr)}',
+
+        ]
+
+        info_str = '\n'.join(info_list)
+
+        return info_str
 
     @property
     def debug(self) -> List[bd.Shape]:
@@ -251,7 +397,7 @@ class TrackPointExtensionRedT460S(TrackPointExtensionBase):
                  tp_cap=tp_cap,
                  tp_stem_width=tp_stem_width,
                  tp_stem_height=tp_stem_height,
-                 label='TrackPoint Extension - Red T460S',
+                 model='Red T460S',
 
                  color=color,
                  align=align,
@@ -307,7 +453,7 @@ class TrackPointExtensionGreenT430(TrackPointExtensionBase):
                  tp_cap=tp_cap,
                  tp_stem_width=tp_stem_width,
                  tp_stem_height=tp_stem_height,
-                 label='TrackPoint Extension - T430',
+                 model='Green T430',
 
                  color=color,
                  align=align,

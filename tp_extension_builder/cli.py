@@ -240,6 +240,8 @@ def build(trackpoint_model: ArgTrackPointModel,
                  tp_cap=tp_cap,
     )
 
+    print(f'\n{tp_extension.info}\n')
+
     if interactive is False:
         if export_path is None:
             export_path = str(get_export_path(f'{trackpoint_model}'))
