@@ -3,7 +3,7 @@
 import typer
 
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated, Optional, List
 
 from tp_extension_builder.cli_helpers import (
     get_export_path,
@@ -27,18 +27,20 @@ D_EXPORT_PATH = get_export_path(
     Path('tp_extension').with_suffix('.stl').name
 )
 D_EXPORT_PATH_STR = str(D_EXPORT_PATH)
+D_EXPORT_PATH_COMBINED = str(
+    D_EXPORT_PATH.with_stem(f'{D_EXPORT_PATH.stem}_combined')
+)
 D_EXPORT_PATH_KICAD = str(
     D_EXPORT_PATH.with_stem(f'{D_EXPORT_PATH.stem}_kicad')
 )
 
 #
-# CLI Arguments
+# Build Command
 #
 
 ArgTrackPointModel = Annotated[
     TrackPointModel,
     typer.Argument(
-        metavar='trackpoint_model',
         show_choices=True,
         help='The TrackPoint model',
     )
@@ -53,7 +55,7 @@ OptExportPath = Annotated[
 ]
 
 OptExportFormat = Annotated[
-    ExportFormat,
+    Optional[ExportFormat],
     typer.Option(
         '--export-format', '-f',
         help='The format for the export.',
@@ -228,6 +230,9 @@ def build(trackpoint_model: ArgTrackPointModel,
     if tp_cap_model is not None:
         tp_cap = tp_cap_model.build_cap()
 
+    if export_format is None:
+        export_format = ExportFormat.step
+
     tp_extension = trackpoint_model.build_extension(
                  adapter_hole_incr=adapter_hole_incr,
                  desired_cap_height=desired_cap_height,
@@ -249,6 +254,145 @@ def build(trackpoint_model: ArgTrackPointModel,
     else:
         from ocp_vscode import show
         show(tp_extension, measure_tools=True)
+
+
+#
+# Combine Command
+#
+
+ArgCombineFileList = Annotated[
+    List[str],
+    typer.Argument(
+        help='A list of files you want to combine.',
+    )
+]
+
+OptCombineShapeDistance = Annotated[
+    float,
+    typer.Option(
+        '--shape-distance', '--sd',
+        help=(
+            'Allows you to adjust how far the shapes are placed from '
+            'each other.'
+        ),
+    )
+]
+
+OptAddSprue = Annotated[
+    bool,
+    typer.Option(
+        '--add-sprue/--no-sprue', '--as/--ns',
+        help=(
+            'Allows you to add or remove the sprue connector.'
+        )
+    )
+]
+
+OptSprueRadius = Annotated[
+    float,
+    typer.Option(
+        '--sprue-radius', '--sr',
+        help=(
+            'Allows you to adjust the radius of the sprue cylinder.'
+        ),
+    )
+]
+
+OptSprueOffsetX = Annotated[
+    float,
+    typer.Option(
+        '--sprue-offset-x', '--sox',
+        help=(
+            'Allows you to move the sprue location to a different '
+            'location on the X axis.'
+        ),
+    )
+]
+
+OptSprueOffsetY = Annotated[
+    float,
+    typer.Option(
+        '--sprue-offset-y', '--soy',
+        help=(
+            'Allows you to move the sprue location to a different '
+            'location on the Y axis.'
+        ),
+    )
+]
+
+OptSprueOffsetZ = Annotated[
+    float,
+    typer.Option(
+        '--sprue-offset-z', '--soz',
+        help=(
+            'This allows you to move the sprue location to a different '
+            'location on the Z axis.'
+        ),
+    )
+]
+
+
+@app.command(
+    help='Combines multiple stl or step files into one sprued file.',
+    no_args_is_help=True,
+)
+def combine(files_to_combine: ArgCombineFileList,
+            export_path: OptExportPath = D_EXPORT_PATH_COMBINED,
+            export_format: OptExportFormat = None,
+            interactive: OptInteractive = False,
+            shape_distance: OptCombineShapeDistance = 0.5,
+            add_sprue: OptAddSprue = True,
+            sprue_radius: OptSprueRadius = 0.75,
+            sprue_offset_x: OptSprueOffsetX = 0.0,
+            sprue_offset_y: OptSprueOffsetY = -0.1,
+            sprue_offset_z: OptSprueOffsetZ = 0.0,
+            ) -> None:
+
+    file_pathes = [
+        Path(file_path)
+        for file_path in files_to_combine
+    ]
+
+    if export_format is None:
+        if file_pathes[0].suffix == '.stl':
+            export_format = ExportFormat.stl
+        else:
+            export_format = ExportFormat.step
+
+    if export_path is None:
+        export_path = D_EXPORT_PATH_COMBINED
+
+    print(f'Combining {len(files_to_combine)} files...')
+    import build123d as bd
+    from tp_extension_builder.utils import combine_shapes
+    shapes = []
+    for file_path in file_pathes:
+        if file_path.suffix in ['.step', '.stp']:
+            shape = bd.import_step(str(file_path))
+        elif file_path.suffix == '.stl':
+            shape = bd.import_stl(str(file_path))
+        else:
+            raise ValueError(
+                f'Files with suffix {file_path.suffix} are not supported.')
+        shapes.append(shape)
+
+    shapes_sprued = combine_shapes(
+        shapes=shapes,
+        distance=shape_distance,
+        add_sprue=add_sprue,
+        sprue_radius=sprue_radius,
+        sprue_offset=bd.Vector(
+            sprue_offset_x,
+            sprue_offset_y,
+            sprue_offset_z,
+        )
+    )
+
+    if interactive is False:
+        export_format.export(shapes_sprued, export_path)
+    else:
+        from ocp_vscode import show
+        show(shapes_sprued, measure_tools=True)
 
 
 if __name__ == "__main__":
