@@ -90,15 +90,14 @@ class ExportFormat(str, Enum):
         elif self is ExportFormat.stl:
             export_stl(to_export, file_path)
         else:
-            raise ValueError(f'{self} is not a supported export format')
+            raise ValueError(f'{self.value} is not a supported export format')
 
     def add_extension_to_path(self, file_path: str) -> str:
         '''
         Replaces the file extension of a path with the extension for the
         selected type.
         '''
-        new_path = Path(file_path)
-        new_path.with_suffix(f'.{self}')
+        new_path = Path(file_path).with_suffix(f'.{self.value}')
 
         return str(new_path)
 
