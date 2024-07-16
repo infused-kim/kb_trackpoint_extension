@@ -26,7 +26,7 @@ from tp_extension_builder.defines import (
 
 app = typer.Typer(
     no_args_is_help=True,
-    add_completion=False,
+    add_completion=True,
     context_settings={
         'help_option_names': ['-h', '--help'],
     },
