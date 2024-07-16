@@ -3,7 +3,8 @@
 import typer
 
 from pathlib import Path
-from typing import Annotated, Optional, List
+from typing import Annotated, Optional, List, Union
+from enum import Enum
 
 from tp_extension_builder.cli_helpers import (
     get_export_path,
@@ -23,16 +24,45 @@ from tp_extension_builder.defines import (
 )
 
 
+app = typer.Typer(
+    no_args_is_help=True,
+    add_completion=False,
+    context_settings={
+        'help_option_names': ['-h', '--help'],
+    },
+)
+
+
 D_EXPORT_PATH = get_export_path(
-    Path('tp_extension').with_suffix('.stl').name
+    'tp_extension_<tp_model>_<parameters>.<format>'
 )
-D_EXPORT_PATH_STR = str(D_EXPORT_PATH)
-D_EXPORT_PATH_COMBINED = str(
-    D_EXPORT_PATH.with_stem(f'{D_EXPORT_PATH.stem}_combined')
+D_EXPORT_PATH_KICAD = get_export_path(
+    'tp_extension_kicad_<tp_model>_<parameters>.<format>'
 )
-D_EXPORT_PATH_KICAD = str(
-    D_EXPORT_PATH.with_stem(f'{D_EXPORT_PATH.stem}_kicad')
+D_EXPORT_PATH_COMBINED = get_export_path(
+    'tp_extensions_combined.<format>'
 )
+
+
+def substitute_export_path(export_path: Union[str, Path],
+                           tp_model: Union[TrackPointModel, str],
+                           export_format: ExportFormat) -> Path:
+    if isinstance(tp_model, Enum):
+        tp_model = tp_model.value
+
+    export_path = export_format.substitute_file_path(
+        file_path=export_path,
+        extra_substitutions={
+            '<tp_model>': tp_model
+        },
+        param_suffix_exclude_list=[
+            'trackpoint_model',
+        ],
+        param_suffix_func_offset=1,
+    )
+
+    return export_path
+
 
 #
 # Build Command
@@ -47,7 +77,7 @@ ArgTrackPointModel = Annotated[
 ]
 
 OptExportPath = Annotated[
-    Optional[str],
+    Optional[Path],
     typer.Option(
         '--export-path', '-e',
         help='The path where the 3D models should be exported to',
@@ -198,14 +228,6 @@ OptExtensionWidth = Annotated[
     )
 ]
 
-app = typer.Typer(
-    no_args_is_help=True,
-    add_completion=False,
-    context_settings={
-        'help_option_names': ['-h', '--help'],
-    },
-)
-
 
 @app.command(
     help='Creates a trackpoint extension model for 3d printing.',
@@ -213,7 +235,7 @@ app = typer.Typer(
 )
 def build(trackpoint_model: ArgTrackPointModel,
 
-          export_path: OptExportPath = D_EXPORT_PATH_STR,
+          export_path: OptExportPath = D_EXPORT_PATH,
           export_format: OptExportFormat = ExportFormat.stl,
           export_overwrite: OptExportOverwrite = False,
           interactive: OptInteractive = False,
@@ -235,12 +257,20 @@ def build(trackpoint_model: ArgTrackPointModel,
           ) -> None:
 
     print('Generating extension...')
+
     tp_cap = None
     if tp_cap_model is not None:
         tp_cap = tp_cap_model.build_cap()
 
+    if export_path is None:
+        export_path = D_EXPORT_PATH
+
     if export_format is None:
         export_format = ExportFormat.step
+
+    export_path = substitute_export_path(
+        export_path, trackpoint_model, export_format
+    )
 
     tp_extension = trackpoint_model.build_extension(
                  adapter_hole_incr=adapter_hole_incr,
@@ -257,9 +287,11 @@ def build(trackpoint_model: ArgTrackPointModel,
     print(f'\n{tp_extension.info}\n')
 
     if interactive is False:
-        if export_path is None:
-            export_path = str(get_export_path(f'{trackpoint_model}'))
-        export_format.export(tp_extension, export_path, export_overwrite)
+        export_format.export(
+            to_export=tp_extension,
+            file_path=export_path,
+            overwrite=export_overwrite,
+        )
     else:
         from ocp_vscode import show
         print('Showing extension in VSCode OCP Viewer...')
@@ -318,8 +350,15 @@ def build_kicad_model(
     if tp_cap_model is not None:
         tp_cap = tp_cap_model.build_cap()
 
+    if export_path is None:
+        export_path = D_EXPORT_PATH_KICAD
+
     if export_format is None:
         export_format = ExportFormat.step
+
+    export_path = substitute_export_path(
+        export_path, trackpoint_model, export_format
+    )
 
     tp_extension = trackpoint_model.build_extension(
                  adapter_hole_incr=adapter_hole_incr,
@@ -338,8 +377,6 @@ def build_kicad_model(
     print(f'\n{tp_extension.info}\n')
 
     if interactive is False:
-        if export_path is None:
-            export_path = str(get_export_path(f'{trackpoint_model}'))
         export_format.export(kicad_model, export_path, export_overwrite)
     else:
         from ocp_vscode import show
