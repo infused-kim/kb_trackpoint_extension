@@ -3,7 +3,7 @@
 import typer
 
 from pathlib import Path
-from typing import Annotated, Optional, List, Union
+from typing import Annotated, Optional, List, Union, Any
 from enum import Enum
 
 from tp_extension_builder.cli_helpers import (
@@ -45,23 +45,74 @@ D_EXPORT_PATH_COMBINED = get_export_path(
 
 
 def substitute_export_path(export_path: Union[str, Path],
-                           tp_model: Union[TrackPointModel, str],
-                           export_format: ExportFormat) -> Path:
+                           tp_model: Optional[Union[TrackPointModel, str]],
+                           export_format: ExportFormat,
+                           param_suffix_func_offset: int = 0) -> Path:
+
+    # Ger params of previous func and not this one
+    param_suffix_func_offset += 1
+
     if isinstance(tp_model, Enum):
         tp_model = tp_model.value
 
+    extra_substitutions = {}
+    if tp_model is not None:
+        extra_substitutions['<tp_model>'] = tp_model
+
     export_path = export_format.substitute_file_path(
         file_path=export_path,
-        extra_substitutions={
-            '<tp_model>': tp_model
-        },
+        extra_substitutions=extra_substitutions,
         param_suffix_exclude_list=[
             'trackpoint_model',
         ],
-        param_suffix_func_offset=1,
+        param_suffix_func_offset=param_suffix_func_offset,
     )
 
     return export_path
+
+
+def export_or_show(interactive: bool,
+                   export_path: Path,
+                   export_format: Optional[ExportFormat],
+                   export_overwrite: bool,
+                   shape: Any,
+                   log: Optional[str],
+                   trackpoint_model: Optional[TrackPointModel],
+                   ) -> None:
+
+    if export_format is None:
+        export_format = ExportFormat.step
+
+    export_path = substitute_export_path(
+        export_path=export_path,
+        tp_model=trackpoint_model,
+        export_format=export_format,
+        param_suffix_func_offset=1,
+    )
+
+    if interactive is True:
+        from ocp_vscode import show
+        print('Showing extension in VSCode OCP Viewer...')
+        show(shape, measure_tools=True)
+
+        return
+
+    export_format.export(
+        to_export=shape,
+        file_path=export_path,
+        overwrite=export_overwrite,
+    )
+
+    if log is not None:
+        log_dir = export_path.parent / 'log'
+        log_name = log_dir / Path(export_path.name).with_suffix('.log')
+
+        try:
+            log_dir.mkdir(exist_ok=True)
+            log_name.write_text(log)
+            print(f'Wrote log to {log_name} ...')
+        except (PermissionError, OSError) as e:
+            print(f'Could not create log: {e}')
 
 
 #
@@ -258,19 +309,12 @@ def build(trackpoint_model: ArgTrackPointModel,
 
     print('Generating extension...')
 
-    tp_cap = None
-    if tp_cap_model is not None:
-        tp_cap = tp_cap_model.build_cap()
-
     if export_path is None:
         export_path = D_EXPORT_PATH
 
-    if export_format is None:
-        export_format = ExportFormat.step
-
-    export_path = substitute_export_path(
-        export_path, trackpoint_model, export_format
-    )
+    tp_cap = None
+    if tp_cap_model is not None:
+        tp_cap = tp_cap_model.build_cap()
 
     tp_extension = trackpoint_model.build_extension(
                  adapter_hole_incr=adapter_hole_incr,
@@ -286,16 +330,15 @@ def build(trackpoint_model: ArgTrackPointModel,
 
     print(f'\n{tp_extension.info}\n')
 
-    if interactive is False:
-        export_format.export(
-            to_export=tp_extension,
-            file_path=export_path,
-            overwrite=export_overwrite,
-        )
-    else:
-        from ocp_vscode import show
-        print('Showing extension in VSCode OCP Viewer...')
-        show(tp_extension, measure_tools=True)
+    export_or_show(
+        interactive=interactive,
+        export_path=export_path,
+        export_format=export_format,
+        export_overwrite=export_overwrite,
+        shape=tp_extension,
+        log=tp_extension.info,
+        trackpoint_model=trackpoint_model,
+    )
 
 
 #
@@ -353,13 +396,6 @@ def build_kicad_model(
     if export_path is None:
         export_path = D_EXPORT_PATH_KICAD
 
-    if export_format is None:
-        export_format = ExportFormat.step
-
-    export_path = substitute_export_path(
-        export_path, trackpoint_model, export_format
-    )
-
     tp_extension = trackpoint_model.build_extension(
                  adapter_hole_incr=adapter_hole_incr,
                  desired_cap_height=desired_cap_height,
@@ -376,12 +412,15 @@ def build_kicad_model(
 
     print(f'\n{tp_extension.info}\n')
 
-    if interactive is False:
-        export_format.export(kicad_model, export_path, export_overwrite)
-    else:
-        from ocp_vscode import show
-        print('Showing extension in VSCode OCP Viewer...')
-        show(kicad_model, measure_tools=True)
+    export_or_show(
+        interactive=interactive,
+        export_path=export_path,
+        export_format=export_format,
+        export_overwrite=export_overwrite,
+        shape=kicad_model,
+        log=tp_extension.info,
+        trackpoint_model=trackpoint_model,
+    )
 
 
 #
@@ -520,12 +559,15 @@ def combine(files_to_combine: ArgCombineFileList,
         )
     )
 
-    if interactive is False:
-        export_format.export(shapes_sprued, export_path, export_overwrite)
-    else:
-        from ocp_vscode import show
-        print('Showing extension in VSCode OCP Viewer...')
-        show(shapes_sprued, measure_tools=True)
+    export_or_show(
+        interactive=interactive,
+        export_path=export_path,
+        export_format=export_format,
+        export_overwrite=export_overwrite,
+        shape=shapes_sprued,
+        log=None,
+        trackpoint_model=None,
+    )
 
 
 if __name__ == "__main__":
