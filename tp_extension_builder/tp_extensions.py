@@ -376,9 +376,9 @@ class TrackPointExtensionBase(bd.BasePartObject):
                 bd.add(cap_adapter)
 
             bd.Box(
-                width=self._adapter_hole_width + self._adapter_hole_incr,
-                length=self._adapter_hole_width + self._adapter_hole_incr,
-                height=self._adapter_hole_height + self._adapter_hole_incr,
+                width=self._adapter_hole_width,
+                length=self._adapter_hole_width,
+                height=self._adapter_hole_height,
                 mode=bd.Mode.SUBTRACT,
                 align=ALIGN_CENTER_BOTTOM,
             )
