@@ -129,6 +129,7 @@ class ExportFormat(str, Enum):
                              extra_substitutions: Dict[str, str] = {},
                              param_suffix_func_offset: int = 0,
                              param_suffix_exclude_list: List[str] = [],
+                             include_only_non_default: bool = True,
                              ) -> Path:
         '''
         Makes the following replacements in the file path:
@@ -155,7 +156,8 @@ class ExportFormat(str, Enum):
         param_suffix_func_offset += 1
         param_suffix = get_file_name_suffix_from_params(
             exclude_list=param_suffix_exclude_list,
-            call_frame_offset=param_suffix_func_offset
+            call_frame_offset=param_suffix_func_offset,
+            include_only_non_default=include_only_non_default,
         )
         file_path_str = file_path_str.replace(
             '<params>',
@@ -236,6 +238,7 @@ def get_func_call_history_param_info(
         A dictionary where each key is a parameter name and the value is
         another dictionary with the following keys:
         - 'value': The value passed to the parameter.
+        - 'default': The default value of the parameter.
         - 'annotation': The type annotation of the parameter, or None if
           no annotation is present.
 
@@ -295,11 +298,20 @@ def get_func_call_history_param_info(
         for param_name, param in signature.parameters.items()
     }
 
+    defaults = {
+        param_name: (
+            param.default
+            if param.default != inspect.Parameter.empty else None
+        )
+        for param_name, param in signature.parameters.items()
+    }
+
     # Get the argument values and annotations from the frame
     args, _, _, values = inspect.getargvalues(frame)
     params = {
         arg: {
             'value': values[arg],
+            'default': defaults.get(arg),
             'annotation': annotations.get(arg)
         }
         for arg in args
@@ -312,7 +324,7 @@ def get_func_call_history_param_info(
 def get_func_call_history_typer_names(
         exclude_list: Optional[List[str]] = None,
         call_frame_offset: int = 0,
-        ) -> List[Tuple[List[str], Any]]:
+        ) -> List[Tuple[List[str], Any, Any]]:
     '''
     Retrieves Typer parameter names and their values from the call history
     of functions.
@@ -331,7 +343,7 @@ def get_func_call_history_typer_names(
         that, and so on.
 
     Returns:
-    - List[Tuple[List[str], Any]]:
+    - List[Tuple[List[str], Any, Any]]:
         A list of tuples, each containing:
         - A list of parameter names, including any aliases defined by Typer.
         - The value passed to the parameter.
@@ -341,15 +353,15 @@ def get_func_call_history_typer_names(
             my_arg: Annotated[
                 int,
                 typer.Argument('--my-arg', '--ma')
-            ],
-            b: str) -> None:
+            ] = 1,
+            b: int = 2) -> None:
         info = get_func_call_history_typer_names(call_frame_offset=1)
         print(info)
 
     # When example_function(10, 20) is called, it will print:
     # [
-    #    (['my_arg', 'my-arg', 'ma'], 10),
-    #    (['b'], 20)
+    #    (['my_arg', 'my-arg', 'ma'], 10, 1),
+    #    (['b'], 20, 2)
     # ]
     '''
     def get_typer_info_from_annotation(
@@ -393,7 +405,7 @@ def get_func_call_history_typer_names(
             ]
 
         param_names_and_values.append(
-            (all_names, param_info['value'])
+            (all_names, param_info['value'], param_info['default'])
         )
 
     return param_names_and_values
@@ -403,6 +415,7 @@ def get_file_name_suffix_from_params(
         exclude_list: Optional[List[str]] = None,
         param_max_len: int = 3,
         call_frame_offset: int = 0,
+        include_only_non_default: bool = False,
         ) -> str:
     '''
     Generates a file name suffix based on parameter values from the call
@@ -427,6 +440,8 @@ def get_file_name_suffix_from_params(
         The number of calls to look back in the call history. For example, 0
         refers to the previous function call, 1 refers to the call before
         that, and so on.
+    - include_only_non_default: bool
+        Only include parameters where the default value was changed.
 
     Returns:
     - str:
@@ -445,10 +460,13 @@ def get_file_name_suffix_from_params(
     )
 
     param_values = []
-    for names, value in typer_infos:
+    for names, value, default in typer_infos:
 
         if isinstance(value, Enum):
             value = value.value
+
+        if isinstance(default, Enum):
+            default = default.value
 
         short_name = None
         for name in names:
@@ -457,9 +475,11 @@ def get_file_name_suffix_from_params(
                 break
 
         if short_name is not None:
-            param_values.append(
-                f'{short_name}-{value}'
-            )
+            if (include_only_non_default is False or
+               value != default):
+                param_values.append(
+                    f'{short_name}-{value}'
+                )
 
     file_name_suffix = '_'.join(param_values)
 
