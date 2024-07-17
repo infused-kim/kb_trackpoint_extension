@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+line-length = 79
+exclude = [
+    "testing/*.py",
+]
+
+[tool.ruff.lint]
+extend-select = [
+    "E501",  # line-too-long
+]
+preview = true
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+docstring-code-format = true
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+exclude = [
+    'setup.py',
+    'testing/.*.py'
+]
+
+[[tool.mypy.overrides]]
+module = "build123d"
+no_implicit_optional=false

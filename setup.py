@@ -37,6 +37,12 @@ setup(
         'ocp_vscode',
         'typer',
     ],
+    extras_require={
+        'dev': [
+            'ruff',
+            'mypy',
+        ],
+    },
     entry_points={
         'console_scripts': [
             'tp_extension_builder=tp_extension_builder.cli:app',

@@ -253,7 +253,7 @@ pyenv local build123d
 
 # Install tp_extension_builder in edit mode so that new changes
 # are automatically reflected in the CLI app.
-pip install -e .
+pip install -e .[dev]
 ```
 
 ### 4.2. Add the new TrackPoint
