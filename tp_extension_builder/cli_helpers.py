@@ -1,6 +1,5 @@
 import inspect
 import typer
-import os
 
 from enum import Enum
 from pathlib import Path
@@ -69,6 +68,7 @@ class TrackPointModel(str, Enum):
     def build_cap(self) -> Union[
                                 Type['TrackPointCapGreenT430'],
                                 Type['TrackPointCapRedT460S'],
+                                Type['TrackPointCapBlueX1Carbon']
                            ]:
         from tp_extension_builder.tp_caps import (
             TrackPointCapRedT460S,
