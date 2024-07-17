@@ -284,3 +284,33 @@ class TrackPointCapGreenT430(TrackPointCapBase):
             align=bd.tuplify(align, 3),
             mode=mode,
         )
+
+
+class TrackPointCapBlueX1Carbon(TrackPointCapBase):
+    def __init__(self,
+                 rotation: bd.RotationLike = (0, 0, 0),
+                 align: AlignT = ALIGN_CENTER_BOTTOM,
+                 mode: bd.Mode = bd.Mode.ADD):
+
+        super().__init__(
+            total_height=3.0,
+            base_height=1.3,
+            base_diameter=6.5,
+            dome_diameter=8.0,
+            hole_width=2.2,
+            hole_length=2.2,
+
+            # Yes, the hole is smaller than the stem of the TP
+            # the cap hovers above the platform
+            hole_depth=1.8,
+
+            # Since the inside of the cap is rubber, we don't decrease the
+            # adapter size to achieve a tight fit.
+            cap_adapter_length_decrease=0.0,
+            cap_adapter_width_decrease=0.0,
+
+            model='Blue X1 Carbon',
+            rotation=rotation,
+            align=bd.tuplify(align, 3),
+            mode=mode,
+        )

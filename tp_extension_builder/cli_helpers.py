@@ -22,10 +22,12 @@ if TYPE_CHECKING:
     from tp_extension_builder.tp_extensions import (
         TrackPointExtensionRedT460S,
         TrackPointExtensionGreenT430,
+        TrackPointExtensionBlueX1Carbon,
     )
     from tp_extension_builder.tp_caps import (
         TrackPointCapRedT460S,
         TrackPointCapGreenT430,
+        TrackPointCapBlueX1Carbon,
     )
 
 
@@ -36,21 +38,25 @@ if TYPE_CHECKING:
 class TrackPointModel(str, Enum):
     red_t460s = "red_t460s"
     green_t430 = "green_t430"
+    blue_x1_carbon = "blue_x1_carbon"
 
     @property
     def build_extension(self) -> Union[
                                     Type['TrackPointExtensionRedT460S'],
                                     Type['TrackPointExtensionGreenT430'],
+                                    Type['TrackPointExtensionBlueX1Carbon'],
                                  ]:
         # Importing these classes causes build123d to be imported, which is
         # very slow. So we do it only when it's actually needed.
         from tp_extension_builder.tp_extensions import (
             TrackPointExtensionRedT460S,
             TrackPointExtensionGreenT430,
+            TrackPointExtensionBlueX1Carbon,
         )
         mapping = {
             TrackPointModel.red_t460s: TrackPointExtensionRedT460S,
             TrackPointModel.green_t430: TrackPointExtensionGreenT430,
+            TrackPointModel.blue_x1_carbon: TrackPointExtensionBlueX1Carbon,
         }
 
         extension = mapping.get(self)
@@ -67,10 +73,12 @@ class TrackPointModel(str, Enum):
         from tp_extension_builder.tp_caps import (
             TrackPointCapRedT460S,
             TrackPointCapGreenT430,
+            TrackPointCapBlueX1Carbon,
         )
         mapping = {
             TrackPointModel.red_t460s: TrackPointCapRedT460S,
             TrackPointModel.green_t430: TrackPointCapGreenT430,
+            TrackPointModel.blue_x1_carbon: TrackPointCapBlueX1Carbon,
         }
 
         cap = mapping.get(self)

@@ -9,6 +9,7 @@ from tp_extension_builder.tp_caps import (
     TrackPointCapBase,
     TrackPointCapRedT460S,
     TrackPointCapGreenT430,
+    TrackPointCapBlueX1Carbon,
 )
 
 from tp_extension_builder.utils import (
@@ -496,6 +497,62 @@ class TrackPointExtensionGreenT430(TrackPointExtensionBase):
                  tp_stem_width=tp_stem_width,
                  tp_stem_height=tp_stem_height,
                  model='Green T430',
+
+                 color=color,
+                 align=align,
+                 rotation=rotation,
+                 mode=mode,
+        )
+
+
+class TrackPointExtensionBlueX1Carbon(TrackPointExtensionBase):
+    def __init__(self,
+                 adapter_hole_incr: float,
+                 desired_cap_height: float,
+                 tp_mounting_distance: float,
+                 adapter_width_below_pcb: float = D_ADAPTER_WIDTH_BELOW_PCB,
+                 adapter_width_above_pcb: float = D_ADAPTER_WIDTH_ABOVE_PCB,
+                 extension_width: float = D_EXTENSION_WIDTH,
+                 pcb_height: float = D_PCB_HEIGHT,
+                 space_above_pcb: float = CHOC_SWITCH_MOUNTING_NOTCH_HEIGHT,
+                 tp_cap: Optional[TrackPointCapBase] = None,
+                 color: bd.Color = bd.Color('gray'),
+                 rotation: bd.RotationLike = (0, 0, 0),
+                 align: AlignT = ALIGN_CENTER_BOTTOM,
+                 mode: bd.Mode = bd.Mode.ADD,
+                 ) -> None:
+
+        if tp_cap is None:
+            tp_cap = TrackPointCapBlueX1Carbon()
+
+        # Height from bottom metal part to stem top
+        tp_total_height = 3.3
+
+        # Height of the metal and black, round platform part.
+        # This is the height that sticks out below the pcb if the
+        # TP is mounted totally flush.
+        tp_board_thickness = 1.2
+
+        # The height of the white stem (2.1mm)
+        tp_stem_height = tp_total_height - tp_board_thickness
+        tp_stem_width = 2.2
+
+        super().__init__(
+                 # User Settings
+                 adapter_hole_incr=adapter_hole_incr,
+                 desired_cap_height=desired_cap_height,
+                 tp_mounting_distance=tp_mounting_distance,
+                 adapter_width_below_pcb=adapter_width_below_pcb,
+                 adapter_width_above_pcb=adapter_width_above_pcb,
+                 extension_width=extension_width,
+                 pcb_height=pcb_height,
+                 space_above_pcb=space_above_pcb,
+
+                 # TP Dimensions
+                 tp_cap=tp_cap,
+                 tp_stem_width=tp_stem_width,
+                 tp_stem_height=tp_stem_height,
+                 model='Blue X1 Carbon',
 
                  color=color,
                  align=align,
