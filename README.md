@@ -269,15 +269,15 @@ After that the CLI should automatically pick up the new TrackPoint model.
 
 ## 5. Related Resources
 
-* [My TrackPoint Driver for DIY keyboards using the zmk firmware](https://github.com/infused-kim/kb_zmk_ps2_mouse_trackpoint_driver)
-* [My TrackPoint Keycap Cutter](https://github.com/infused-kim/kb_keycaps_trackpoint)
+- [My TrackPoint Driver for DIY keyboards using the zmk firmware](https://github.com/infused-kim/kb_zmk_ps2_mouse_trackpoint_driver)
+- [My TrackPoint Keycap Cutter](https://github.com/infused-kim/kb_keycaps_trackpoint)
 
 ## 6. License
 
 **TLDR:**
 
-* Personal use with attribution
-* Commercial use not allowed
+- Personal use with attribution
+- Commercial use not allowed
 
 This work is licensed under a
 [Creative Commons Attribution-ShareAlike 4.0 International License][cc-by-sa].

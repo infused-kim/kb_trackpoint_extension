@@ -117,7 +117,7 @@ class TrackPointExtensionBase(bd.BasePartObject):
         super().__init__(
             part=extension,
             rotation=rotation,
-            align=bd.tuplify(align, 3),
+            align=cast(AlignT, bd.tuplify(align, 3)),
             mode=mode,
         )
 

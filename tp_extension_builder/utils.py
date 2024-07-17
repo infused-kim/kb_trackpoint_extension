@@ -59,7 +59,7 @@ def align_shape(
 
         From bd.BoundingBox.to_align_offset, but expanded for a 3d move.
         """
-        align = bd.tuplify(align, 3)
+        align = cast(AlignT, bd.tuplify(align, 3))
 
         align_offset = []
         for i in range(3):
