@@ -26,7 +26,7 @@ def gen_cadquery_ocp_requirement(system=None, machine=None):
 
 setup(
     name='tp_extension_builder',
-    version='0.2',
+    version='1.1',
     packages=find_packages(),
     package_data={
         'tp_extension_builder': ['scripts/*'],
