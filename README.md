@@ -1,6 +1,6 @@
 # TrackPoint Extensions
 
-OpenSCAD scripts that generate TrackPoint extensions that can be used in DIY keyboards.
+Python (build123d) scripts that generate TrackPoint extensions that can be used in DIY keyboards.
 
 ## Table Of Contents <!-- omit from toc -->
 
@@ -9,7 +9,11 @@ OpenSCAD scripts that generate TrackPoint extensions that can be used in DIY key
   - [2.1. Printing it yourself](#21-printing-it-yourself)
   - [2.2. Printing using JLC 3DP](#22-printing-using-jlc-3dp)
 - [3. How to generate customized Extensions](#3-how-to-generate-customized-extensions)
+  - [3.1. Install the generator script](#31-install-the-generator-script)
+  - [3.2. Generate custom trackpoint extensions](#32-generate-custom-trackpoint-extensions)
 - [4. How to add new TrackPoint models](#4-how-to-add-new-trackpoint-models)
+  - [4.1. Set up the development environment](#41-set-up-the-development-environment)
+  - [4.2. Add the new TrackPoint](#42-add-the-new-trackpoint)
 - [5. Related Resources](#5-related-resources)
 - [6. License](#6-license)
 
@@ -44,7 +48,7 @@ I have not tried this, but would probably use the resin SLA 8228 or 9000R materi
 
 With JLC you can combine multiple parts into one file with sprues to get around their minimum cost. This way you can order 10 different versions with slightly different hole sizes and heights for approximately $1.30.
 
-You can generate various stls with different options and then run `make combined` to generate one file with multiple designs like in the screenshot below.
+You can generate various step files with different options and then run `tp_extension_builder combine` to generate one file with multiple designs like in the screenshot below.
 
 But keep in mind that JLC will charge you an extra $1 per combined STL [as per their connected parts printing policy](https://jlc3dp.com/help/article/213-Connected-Parts-Printing-Guide).
 
@@ -52,88 +56,216 @@ But keep in mind that JLC will charge you an extra $1 per combined STL [as per t
 
 ## 3. How to generate customized Extensions
 
-The OpenSCAD scripts have parameters that allow you to customize many aspects of the generated 3D files.
+### 3.1. Install the generator script
 
-* Install OpenSCAD
-  * The [snapshot version](https://openscad.org/downloads.html#snapshots) is recommended for performance reasons
-  * If it crashes, [try an older version of the snapshot](https://files.openscad.org/snapshots/)
-* Set up the dev environment
-  * Adjust the Makefile with the path to your OpenSCAD installation
-* Run the keycap generator
-  * Run `make help` to see all available parameters
-  * You can, for example, run `make tp_red_t460s ADAPTER_WIDTH_BOTTOM=6 ADAPTER_WIDTH_TOP=4 MOUNTING_DISTANCE=0.5 HOLE_INCR=0.3`.
-  * Or run `make all <OPTIONS>` to build extensions for all defined TrackPoints
+```bash
+# Install directly from the repo
+pipx install git+https://github.com/infused-kim/kb_trackpoint_extension.git
 
-You can also open the individual files in the OpenSCAD GUI if you prefer to see a preview in the GUI instead of generating using make.
+# Or clone it and install from the directory
+git clone https://github.com/infused-kim/kb_trackpoint_extension.git
+pipx install ./kb_case_builder
+```
 
-Here are all available options:
+> [!NOTE]
+> **For macOS Apple Silicon (ARM / M1, M2, M3) users:**
+>
+> This software relies on cadquery-ocp, which is currently not available for Apple Silicon systems on pypi. Instead it has to be installed using a github release wheel.
+>
+> The [setup.py](setup.py) file already takes care of this, but if it fails for whatever reason, [you can learn more about how to resolve Apple Silicon issues here](https://github.com/gumyr/build123d/issues/646).
 
-```shell
-❯ make help
+### 3.2. Generate custom trackpoint extensions
 
-Help:
+Once installed you can use the `tp_extension_builder` command:
 
-  You can customize the output using the following parameters with any of the targets below...
+```bash
+❯ tp_extension_builder -h
 
-  To see the available targets run:
-    make targets
+ Usage: tp_extension_builder [OPTIONS] COMMAND [ARGS]...
 
-  And then to run a target:
-    make tp_red_t460s HOLE_INCR=0.2 HEIGHT=10.5
+╭─ Options ────────────────────────────────────────────────────────────────────────╮
+│ --install-completion            Install completion for the current shell.        │
+│ --show-completion               Show completion for the current shell, to copy   │
+│                                 it or customize the installation.                │
+│ --help                -h        Show this message and exit.                      │
+╰──────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────╮
+│ build               Creates a trackpoint extension model for 3d printing.        │
+│ build-kicad-model   Creates a 3D model of the extension and cap that can be used │
+│                     in KiCad. The model is positioned at the mounting distance.  │
+│ combine             Combines multiple step files into one (optionally)    │
+│                     sprued file.                                                 │
+╰──────────────────────────────────────────────────────────────────────────────────╯
+```
 
-  You can also run multiple targets with the same parameters at once:
-    make tp_red_t460s tp_green_t430 HOLE_INCR=0.2 HEIGHT=10.5
+And you can customize a lot of the extension values through command line parameters:
 
-  Or you can build all targets with:
-    make all HOLE_INCR=0.2 HEIGHT=10.5
+```bash
+❯ tp_extension_builder build -h
 
-Parameters:
+ Usage: tp_extension_builder build [OPTIONS] TRACKPOINT_MODEL:{red_t460s|green_
+                                   t430|blue_x1_carbon}
 
-  HOLE_INCR=0.2
-    By how much you want to increase the adapter hole compared to the actual TP stem width.
+ Creates a trackpoint extension model for 3d printing.
 
-  ADAPTER_WIDTH_BOTTOM=5 ADAPTER_WIDTH_TOP=4
-    The width of the stem adapter below and above the PCB.
-
-  HEIGHT=10.5
-    The height from the pcb to where you want the cap to end.
-
-  MOUNTING_DISTANCE=1.0
-    How far the TP is mounted BELOW the PCB. This should include the thickness of any plastic or electrical tape you use to isolate the TP mount.
-
-  PCB_HEIGHT=1.6
-    Thickness of the pcb.
-
-  TIP_INCR=0.3
-    By how much you want to increase the tip for a tighter cap fit.
-
-  FOR_KICAD=true
-    Orientates the extension for better visualization in KiCad:
-      - Upwards
-      - Centered
-      - With mounting distance offset on the z axis
-
-Available targets:
-  tp_green_t430
-  tp_green_t430_with_t460s_cap
-  tp_red_t460s
-  tp_red_t460s_with_dell_cap
-
-  combined
-    Combines all .stl files in stl/output into one stl with sprues for printing at JLC3DP.
-
-  all
-    Runs all targets (including combined)
-
-  clean
-    Removes all .stl and .log files from stl/output.
+╭─ Arguments ───────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ *    trackpoint_model      TRACKPOINT_MODEL:{red_t460s|green_t430|blu  The TrackPoint model [default: None]       │
+│                            e_x1_carbon}                                [required]                                 │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ─────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --export-path               -e                              PATH                       The path where the 3D      │
+│                                                                                        models should be exported  │
+│                                                                                        to                         │
+│                                                                                        [default:                  │
+│                                                                                        exports/tp_extension_<tp_… │
+│ --export-format             -f                              [step|stl]                 The format for the export. │
+│                                                                                        [default: step]            │
+│ --overwrite                     --ask-before-overwriting                               The format for the export. │
+│                                                                                        [default:                  │
+│                                                                                        ask-before-overwriting]    │
+│ --interactive               -i  --not-interactive                                      Don't export a file and    │
+│                                                                                        instead display the model  │
+│                                                                                        in VSCode OCP Viewer.      │
+│                                                                                        [default: not-interactive] │
+│ --mounting-distance,--md                                    FLOAT                      This allows you to specify │
+│                                                                                        how far below the PCB your │
+│                                                                                        TrackPoint is mounted.     │
+│                                                                                        This refers to the bottom  │
+│                                                                                        of the white TrackPoint    │
+│                                                                                        stem. So if you mount the  │
+│                                                                                        TrackPoint flush against   │
+│                                                                                        the PCB, you would use 0.0 │
+│                                                                                        and if you mount it below  │
+│                                                                                        the hotswap sockets, you   │
+│                                                                                        would use 1.85 or 2.00.    │
+│                                                                                        [default: 0.0]             │
+│ --cap-height,--ch                                           FLOAT                      The height above the PCB   │
+│                                                                                        where the top of the red   │
+│                                                                                        cap should end up. This is │
+│                                                                                        NOT the total height of    │
+│                                                                                        the extension, because the │
+│                                                                                        red cap adds a little bit  │
+│                                                                                        of height and because a    │
+│                                                                                        portion of the extension   │
+│                                                                                        will be within or below    │
+│                                                                                        the PCB. The default value │
+│                                                                                        is the keycap height for   │
+│                                                                                        Khail Choc switches.       │
+│                                                                                        [default: 10.5]            │
+│ --pcb-height,--ph                                           FLOAT                      Adjust the thickness of    │
+│                                                                                        your keyboard PCB to       │
+│                                                                                        ensure the total height    │
+│                                                                                        above the PCB is correct   │
+│                                                                                        [default: 1.6]             │
+│ --space-above-pcb,--sap                                     FLOAT                      Specify how much space you │
+│                                                                                        have above PCB for the     │
+│                                                                                        thicker part of the        │
+│                                                                                        extension adapter. This is │
+│                                                                                        the space between the PCB  │
+│                                                                                        and anything above it that │
+│                                                                                        might be in the way, such  │
+│                                                                                        as a switch plate. On      │
+│                                                                                        Khail Choc boards without  │
+│                                                                                        a switch plate, you have   │
+│                                                                                        2.2mm until the switch     │
+│                                                                                        plate notch, for example.  │
+│                                                                                        [default: 2.2]             │
+│ --width-below-pcb,--wbp                                     FLOAT                      Specify the max width      │
+│                                                                                        (diameter) of the          │
+│                                                                                        extension below and within │
+│                                                                                        the PCB. This should be    │
+│                                                                                        slightly smaller than your │
+│                                                                                        TrackPoint PCB hole.       │
+│                                                                                        [default: 5.0]             │
+│ --width-above-pcb,--wap                                     FLOAT                      Specify the max width      │
+│                                                                                        (diameter) of the          │
+│                                                                                        extension above the PCB.   │
+│                                                                                        This should be smaller     │
+│                                                                                        than the space available   │
+│                                                                                        between your switches.     │
+│                                                                                        Keep in mind that the      │
+│                                                                                        stagger of the keys can    │
+│                                                                                        significantly affect the   │
+│                                                                                        available space.           │
+│                                                                                        [default: 4.0]             │
+│ --width-extension,--we                                      FLOAT                      Specify the max width      │
+│                                                                                        (diameter) of the          │
+│                                                                                        extension between the      │
+│                                                                                        adapter and the tip. This  │
+│                                                                                        should be smaller than the │
+│                                                                                        distance between the       │
+│                                                                                        switches at their widest   │
+│                                                                                        point (plate notch) and    │
+│                                                                                        smaller than the           │
+│                                                                                        TrackPoint hole in your    │
+│                                                                                        switch plate.              │
+│                                                                                        [default: 2.0]             │
+│ --cap-model,--cm                                            [red_t460s|green_t430|blu  Create the extension with  │
+│                                                             e_x1_carbon]               a tip that fits a          │
+│                                                                                        different TrackPoint       │
+│                                                                                        model's red cap. For       │
+│                                                                                        example, create an         │
+│                                                                                        extension for the green    │
+│                                                                                        T430 TrackPoint that would │
+│                                                                                        be used with the smaller   │
+│                                                                                        T460S cap.                 │
+│                                                                                        [default: None]            │
+│ --adapter-hole-increase,-…                                  FLOAT                      In 3D printing holes       │
+│                                                                                        frequently end up being    │
+│                                                                                        smaller than specified.    │
+│                                                                                        This allows you to         │
+│                                                                                        compensate for it by       │
+│                                                                                        increasing the TrackPoint  │
+│                                                                                        adapter hole.              │
+│                                                                                        [default: 0.2]             │
+│ --help                      -h                                                         Show this message and      │
+│                                                                                        exit.                      │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ## 4. How to add new TrackPoint models
 
-You can just duplicate an existing TrackPoint file, such as `src/export_tp_red_t460s.scad`, measure your TrackPoints dimensions, and adjust the variables in the file.
+### 4.1. Set up the development environment
 
-As long as your file starts with the prefix `export_`, it will automatically show up in omake as a target.
+A best practice is to create virtual python environments for different purposes and projects. I recommend using [pyenv](https://github.com/pyenv/pyenv) and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) for that purpose.
+
+Here is an example setup...
+
+```bash
+# Clone the repo
+git clone git@github.com:infused-kim/kb_trackpoint_extension.git
+
+# cd into the repo directory
+cd kb_trackpoint_extension
+
+# Install python
+pyenv install 3.11
+
+# Create a new environment
+pyenv virtualenv 3.11 build123d
+
+# Activate the environment
+pyenv activate build123d
+
+# Make it the default environment for the current directory
+# so that it activates whenever you cd into it.
+pyenv local build123d
+
+# Install tp_extension_builder in edit mode so that new changes
+# are automatically reflected in the CLI app.
+pip install -e .
+```
+
+### 4.2. Add the new TrackPoint
+
+You have to edit the following files:
+
+- `tp_extension_builder/tp_extensions.py` -> Duplicate one of the exsting extension classes and adjust the values.
+- `tp_extension_builder/tp_caps.py` -> Duplicate one of the exsting cap classes and adjust the values.
+- `tp_extension_builder/cli_helpers.py` -> Add the new TP model to the TrackPointModel class.
+- `Makefile` -> Add the new TP model to `TRACKPOINT_MODELS_VALUES`.
+
+After that the CLI should automatically pick up the new TrackPoint model.
 
 ## 5. Related Resources
 
