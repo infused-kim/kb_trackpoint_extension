@@ -287,12 +287,11 @@ OptExtensionWidth = Annotated[
 def build(trackpoint_model: ArgTrackPointModel,
 
           export_path: OptExportPath = D_EXPORT_PATH,
-          export_format: OptExportFormat = ExportFormat.stl,
+          export_format: OptExportFormat = ExportFormat.step,
           export_overwrite: OptExportOverwrite = False,
           interactive: OptInteractive = False,
-          adapter_hole_incr: OptAdapterHoleIncr = D_ADAPTER_HOLE_INCR,
-          desired_cap_height: OptDesiredCapHeight = CHOC_KEYCAP_HEIGHT,
           tp_mounting_distance: OptMountingDistance = D_MOUNTING_DISTANCE,
+          desired_cap_height: OptDesiredCapHeight = CHOC_KEYCAP_HEIGHT,
           pcb_height: OptPcbHeight = D_PCB_HEIGHT,
           space_above_pcb: OptSpaceAbovePCB = (
               CHOC_SWITCH_MOUNTING_NOTCH_HEIGHT
@@ -305,6 +304,7 @@ def build(trackpoint_model: ArgTrackPointModel,
           ),
           extension_width: OptExtensionWidth = D_EXTENSION_WIDTH,
           tp_cap_model: OptCapModel = None,
+          adapter_hole_incr: OptAdapterHoleIncr = D_ADAPTER_HOLE_INCR,
           ) -> None:
 
     print('Generating extension...')
@@ -371,9 +371,8 @@ def build_kicad_model(
         export_overwrite: OptExportOverwrite = False,
         interactive: OptInteractive = False,
         include_cap: OptIncludeCap = True,
-        adapter_hole_incr: OptAdapterHoleIncr = D_ADAPTER_HOLE_INCR,
-        desired_cap_height: OptDesiredCapHeight = CHOC_KEYCAP_HEIGHT,
         tp_mounting_distance: OptMountingDistance = D_MOUNTING_DISTANCE,
+        desired_cap_height: OptDesiredCapHeight = CHOC_KEYCAP_HEIGHT,
         pcb_height: OptPcbHeight = D_PCB_HEIGHT,
         space_above_pcb: OptSpaceAbovePCB = (
             CHOC_SWITCH_MOUNTING_NOTCH_HEIGHT
@@ -386,6 +385,7 @@ def build_kicad_model(
         ),
         extension_width: OptExtensionWidth = D_EXTENSION_WIDTH,
         tp_cap_model: OptCapModel = None,
+        adapter_hole_incr: OptAdapterHoleIncr = D_ADAPTER_HOLE_INCR,
         ) -> None:
 
     print('Generating extension...')
