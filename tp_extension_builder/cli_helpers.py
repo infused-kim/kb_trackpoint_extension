@@ -34,17 +34,20 @@ if TYPE_CHECKING:
 # Selecting TPs and Caps
 #
 
+
 class TrackPointModel(str, Enum):
-    red_t460s = "red_t460s"
-    green_t430 = "green_t430"
-    blue_x1_carbon = "blue_x1_carbon"
+    red_t460s = 'red_t460s'
+    green_t430 = 'green_t430'
+    blue_x1_carbon = 'blue_x1_carbon'
 
     @property
-    def build_extension(self) -> Union[
-                                    Type['TrackPointExtensionRedT460S'],
-                                    Type['TrackPointExtensionGreenT430'],
-                                    Type['TrackPointExtensionBlueX1Carbon'],
-                                 ]:
+    def build_extension(
+        self,
+    ) -> Union[
+        Type['TrackPointExtensionRedT460S'],
+        Type['TrackPointExtensionGreenT430'],
+        Type['TrackPointExtensionBlueX1Carbon'],
+    ]:
         # Importing these classes causes build123d to be imported, which is
         # very slow. So we do it only when it's actually needed.
         from tp_extension_builder.tp_extensions import (
@@ -52,6 +55,7 @@ class TrackPointModel(str, Enum):
             TrackPointExtensionGreenT430,
             TrackPointExtensionBlueX1Carbon,
         )
+
         mapping = {
             TrackPointModel.red_t460s: TrackPointExtensionRedT460S,
             TrackPointModel.green_t430: TrackPointExtensionGreenT430,
@@ -65,16 +69,19 @@ class TrackPointModel(str, Enum):
         return extension
 
     @property
-    def build_cap(self) -> Union[
-                                Type['TrackPointCapGreenT430'],
-                                Type['TrackPointCapRedT460S'],
-                                Type['TrackPointCapBlueX1Carbon']
-                           ]:
+    def build_cap(
+        self,
+    ) -> Union[
+        Type['TrackPointCapGreenT430'],
+        Type['TrackPointCapRedT460S'],
+        Type['TrackPointCapBlueX1Carbon'],
+    ]:
         from tp_extension_builder.tp_caps import (
             TrackPointCapRedT460S,
             TrackPointCapGreenT430,
             TrackPointCapBlueX1Carbon,
         )
+
         mapping = {
             TrackPointModel.red_t460s: TrackPointCapRedT460S,
             TrackPointModel.green_t430: TrackPointCapGreenT430,
@@ -83,25 +90,24 @@ class TrackPointModel(str, Enum):
 
         cap = mapping.get(self)
         if cap is None:
-            raise ValueError(
-                f'Cannot build cap for {self}'
-            )
+            raise ValueError(f'Cannot build cap for {self}')
         return cap
 
 
 class ExportFormat(str, Enum):
-    step = "step"
-    stl = "stl"
+    step = 'step'
+    stl = 'stl'
 
-    def export(self,
-               to_export: 'Shape',
-               file_path: Union[str, Path],
-               overwrite: bool = False,
-               ) -> None:
-        '''
+    def export(
+        self,
+        to_export: 'Shape',
+        file_path: Union[str, Path],
+        overwrite: bool = False,
+    ) -> None:
+        """
         Exports a shape using the selected format's build123d exporter
         function.
-        '''
+        """
         from build123d import (
             export_step,
             export_stl,
@@ -129,38 +135,41 @@ class ExportFormat(str, Enum):
             raise ValueError(f'{self.value} is not a supported export format')
 
     def add_extension_to_path(self, file_path: Union[str, Path]) -> Path:
-        '''
+        """
         Replaces the file extension of a path with the extension for the
         selected type.
-        '''
+        """
         new_path = Path(file_path).with_suffix(f'.{self.value}')
 
         return new_path
 
-    def substitute_file_path(self,
-                             file_path: Union[str, Path],
-                             extra_substitutions: Dict[str, str] = {},
-                             param_suffix_func_offset: int = 0,
-                             param_suffix_exclude_list: List[str] = [],
-                             include_only_non_default: bool = True,
-                             ) -> Path:
-        '''
+    def substitute_file_path(
+        self,
+        file_path: Union[str, Path],
+        extra_substitutions: Dict[str, str] = {},
+        param_suffix_func_offset: int = 0,
+        param_suffix_exclude_list: List[str] = [],
+        include_only_non_default: bool = True,
+    ) -> Path:
+        """
         Makes the following replacements in the file path:
           - `<params>` / `<parameters>` to calling function's short parameter
             values
           - `<format>` to the selected format in this enum
           - The dict keys in extra_substitutions to the dict values
-        '''
+        """
 
         file_path_str = str(file_path)
 
         # Add additional, common parameters that should be excluded
-        param_suffix_exclude_list.extend([
-            'export_path',
-            'export_format',
-            'export_overwrite',
-            'interactive',
-        ])
+        param_suffix_exclude_list.extend(
+            [
+                'export_path',
+                'export_format',
+                'export_overwrite',
+                'interactive',
+            ]
+        )
 
         # Replace `<params>` with the parameters of the calling function
 
@@ -203,9 +212,11 @@ class ExportFormat(str, Enum):
 # Functions
 #
 
+
 def is_interactive_mode() -> bool:
     try:
         from IPython import get_ipython  # type: ignore
+
         if 'IPKernelApp' not in get_ipython().config:  # type: ignore
             return False
     except ImportError:
@@ -228,10 +239,10 @@ def get_export_path(file_name: str) -> Path:
 
 
 def get_func_call_history_param_info(
-        exclude_list: Optional[List[str]] = None,
-        call_frame_offset: int = 0,
-        ) -> Dict[str, Dict[str, Any]]:
-    '''
+    exclude_list: Optional[List[str]] = None,
+    call_frame_offset: int = 0,
+) -> Dict[str, Dict[str, Any]]:
+    """
     Retrieves parameter information from the call history of functions.
 
     This function returns the parameter names, their annotations, and their
@@ -262,10 +273,11 @@ def get_func_call_history_param_info(
         info = get_func_call_history_param_info(call_frame_offset=0)
         print(info)
 
+
     # It will print the parameter info and values passed to
     # `example_function`.
     ```
-    '''
+    """
 
     if exclude_list is None:
         exclude_list = []
@@ -306,15 +318,15 @@ def get_func_call_history_param_info(
     annotations = {
         param_name: (
             param.annotation
-            if param.annotation != inspect.Parameter.empty else None
+            if param.annotation != inspect.Parameter.empty
+            else None
         )
         for param_name, param in signature.parameters.items()
     }
 
     defaults = {
         param_name: (
-            param.default
-            if param.default != inspect.Parameter.empty else None
+            param.default if param.default != inspect.Parameter.empty else None
         )
         for param_name, param in signature.parameters.items()
     }
@@ -325,7 +337,7 @@ def get_func_call_history_param_info(
         arg: {
             'value': values[arg],
             'default': defaults.get(arg),
-            'annotation': annotations.get(arg)
+            'annotation': annotations.get(arg),
         }
         for arg in args
         if arg not in exclude_list
@@ -335,10 +347,10 @@ def get_func_call_history_param_info(
 
 
 def get_func_call_history_typer_names(
-        exclude_list: Optional[List[str]] = None,
-        call_frame_offset: int = 0,
-        ) -> List[Tuple[List[str], Any, Any]]:
-    '''
+    exclude_list: Optional[List[str]] = None,
+    call_frame_offset: int = 0,
+) -> List[Tuple[List[str], Any, Any]]:
+    """
     Retrieves Typer parameter names and their values from the call history
     of functions.
 
@@ -376,10 +388,11 @@ def get_func_call_history_typer_names(
     #    (['my_arg', 'my-arg', 'ma'], 10, 1),
     #    (['b'], 20, 2)
     # ]
-    '''
+    """
+
     def get_typer_info_from_annotation(
-            annotation: Any,
-            ) -> Optional[typer.models.ParameterInfo]:
+        annotation: Any,
+    ) -> Optional[typer.models.ParameterInfo]:
         if hasattr(annotation, '__metadata__'):
             for a in annotation.__metadata__:
                 if isinstance(a, typer.models.ParameterInfo):
@@ -397,9 +410,7 @@ def get_func_call_history_typer_names(
 
     param_names_and_values = []
     for param_name, param_info in param_infos.items():
-        typer_info = get_typer_info_from_annotation(
-            param_info['annotation']
-        )
+        typer_info = get_typer_info_from_annotation(param_info['annotation'])
 
         all_names = [param_name]
 
@@ -425,12 +436,12 @@ def get_func_call_history_typer_names(
 
 
 def get_file_name_suffix_from_params(
-        exclude_list: Optional[List[str]] = None,
-        param_max_len: int = 3,
-        call_frame_offset: int = 0,
-        include_only_non_default: bool = False,
-        ) -> str:
-    '''
+    exclude_list: Optional[List[str]] = None,
+    param_max_len: int = 3,
+    call_frame_offset: int = 0,
+    include_only_non_default: bool = False,
+) -> str:
+    """
     Generates a file name suffix based on parameter values from the call
     history of previous functions.
 
@@ -461,7 +472,7 @@ def get_file_name_suffix_from_params(
         A string representing the generated file name suffix, constructed by
         joining shortened parameter names with their corresponding values,
         separated by '-'.
-    '''
+    """
 
     # Increment call_frame offset to get info about previous func
     # and not this one.
@@ -474,7 +485,6 @@ def get_file_name_suffix_from_params(
 
     param_values = []
     for names, value, default in typer_infos:
-
         if isinstance(value, Enum):
             value = value.value
 
@@ -488,11 +498,8 @@ def get_file_name_suffix_from_params(
                 break
 
         if short_name is not None:
-            if (include_only_non_default is False or
-               value != default):
-                param_values.append(
-                    f'{short_name}-{value}'
-                )
+            if include_only_non_default is False or value != default:
+                param_values.append(f'{short_name}-{value}')
 
     file_name_suffix = '_'.join(param_values)
 

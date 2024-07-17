@@ -74,19 +74,14 @@ class TrackPointCapBase(bd.BasePartObject):
         self.cap_adapter_length_decrease = cap_adapter_length_decrease
 
         self.cap_adapter_width = (
-            self.hole_width
-            - self.cap_adapter_width_decrease
+            self.hole_width - self.cap_adapter_width_decrease
         )
         self.cap_adapter_length = (
-            self.hole_length
-            - self.cap_adapter_length_decrease
+            self.hole_length - self.cap_adapter_length_decrease
         )
         self.cap_adapter_height = self.hole_depth
 
-        self.cap_extra_height = (
-            self.total_height
-            - self.hole_depth
-        )
+        self.cap_extra_height = self.total_height - self.hole_depth
 
         self.model = model
 
@@ -128,13 +123,15 @@ class TrackPointCapBase(bd.BasePartObject):
 
     @property
     def debug(self) -> List[bd.Shape]:
-        '''
+        """
         Returns a list of build123d objects for debugging in ocp_viewer.
-        '''
+        """
         return get_bd_debug_objects(self)
 
-    def build_cap_adapter(self,
-                          align: AlignT = ALIGN_CENTER_BOTTOM,) -> bd.Shape:
+    def build_cap_adapter(
+        self,
+        align: AlignT = ALIGN_CENTER_BOTTOM,
+    ) -> bd.Shape:
         with bd.BuildPart() as cap_adapter:
             bd.Box(
                 length=self.cap_adapter_length,
@@ -147,38 +144,35 @@ class TrackPointCapBase(bd.BasePartObject):
 
         return cast(bd.Shape, cap_adapter)
 
-    def _build_dome(self,
-                    diameter: float,
-                    height: float,
-                    dot_height: float = DEFAULT_DOME_DOT_HEIGHT,
-                    dot_radius: float = DEFAULT_DOME_DOT_RADIUS,
-                    dot_spacing: float = DEFAULT_DOME_DOT_SPACING,
-                    dot_rows: List[int] = DEFAULT_DOME_DOT_ROWS,
-                    ) -> bd.Shape:
+    def _build_dome(
+        self,
+        diameter: float,
+        height: float,
+        dot_height: float = DEFAULT_DOME_DOT_HEIGHT,
+        dot_radius: float = DEFAULT_DOME_DOT_RADIUS,
+        dot_spacing: float = DEFAULT_DOME_DOT_SPACING,
+        dot_rows: List[int] = DEFAULT_DOME_DOT_ROWS,
+    ) -> bd.Shape:
         radius = diameter / 2
 
         with bd.BuildPart() as dome:
-
             # This is not the actual curvature of the TP dome, but
             # it's close enough.
             with bd.BuildSketch(bd.Plane.XZ) as dome_sketch:
                 with bd.BuildLine():
-
                     # Draw the top half of the profile on the right side
-                    l_side = bd.Line((0, 0), (0, height/2))
-                    l_bottom = bd.Line(l_side@0, (radius, 0))
-                    l_top = bd.Line(l_side@1, (radius * 0.4, height/2))
+                    l_side = bd.Line((0, 0), (0, height / 2))
+                    l_bottom = bd.Line(l_side @ 0, (radius, 0))
+                    l_top = bd.Line(l_side @ 1, (radius * 0.4, height / 2))
 
                     # Create the arc between top end and bottom end of the line
                     arc_mid_point = (
-                        (l_top.end_point().X + l_bottom.end_point().X)/2,
-                        (l_top.end_point().Y + l_bottom.end_point().Y)/2 * 1.5,
+                        (l_top.end_point().X + l_bottom.end_point().X) / 2,
+                        (l_top.end_point().Y + l_bottom.end_point().Y)
+                        / 2
+                        * 1.5,
                     )
-                    bd.ThreePointArc(
-                        l_top@1,
-                        arc_mid_point,
-                        l_bottom@1
-                    )
+                    bd.ThreePointArc(l_top @ 1, arc_mid_point, l_bottom @ 1)
 
                 bd.make_face()
 
@@ -196,8 +190,8 @@ class TrackPointCapBase(bd.BasePartObject):
             with bd.BuildSketch(bd.Plane.XY):
                 for row_num, dot_num in enumerate(dot_rows):
                     row_offset = (
-                        row_num * dot_spacing -
-                        ((len(dot_rows) - 1) * dot_spacing) / 2
+                        row_num * dot_spacing
+                        - ((len(dot_rows) - 1) * dot_spacing) / 2
                     )
                     with bd.Locations((0, row_offset, 0)):
                         grid_loc = bd.GridLocations(
@@ -207,16 +201,15 @@ class TrackPointCapBase(bd.BasePartObject):
                             bd.Circle(
                                 dot_radius,
                             )
-            bd.extrude(amount=height/2 + dot_height)
+            bd.extrude(amount=height / 2 + dot_height)
         dome = dome.part
         dome.label = 'Cap Dome'
 
         return cast(bd.Shape, dome)
 
-    def _build_base(self,
-                    diameter: float,
-                    height: float,
-                    align: AlignT = ALIGN_CENTER_TOP) -> bd.Shape:
+    def _build_base(
+        self, diameter: float, height: float, align: AlignT = ALIGN_CENTER_TOP
+    ) -> bd.Shape:
         radius = diameter / 2
 
         with bd.BuildPart() as base:
@@ -232,26 +225,24 @@ class TrackPointCapBase(bd.BasePartObject):
 
 
 class TrackPointCapRedT460S(TrackPointCapBase):
-    def __init__(self,
-                 rotation: bd.RotationLike = (0, 0, 0),
-                 align: AlignT = ALIGN_CENTER_BOTTOM,
-                 mode: bd.Mode = bd.Mode.ADD):
-
+    def __init__(
+        self,
+        rotation: bd.RotationLike = (0, 0, 0),
+        align: AlignT = ALIGN_CENTER_BOTTOM,
+        mode: bd.Mode = bd.Mode.ADD,
+    ):
         super().__init__(
             total_height=4.0,
             base_height=2.0,
             base_diameter=6.5,
             dome_diameter=8.5,
-
             hole_width=2.5,
             hole_length=2.5,
             hole_depth=3.0,
-
             # Since the inside of the cap is rubber, we don't decrease the
             # adapter size for a tighter fit
             cap_adapter_length_decrease=0.0,
             cap_adapter_width_decrease=0.0,
-
             model='Green T460S',
             rotation=rotation,
             align=bd.tuplify(align, 3),
@@ -260,11 +251,12 @@ class TrackPointCapRedT460S(TrackPointCapBase):
 
 
 class TrackPointCapGreenT430(TrackPointCapBase):
-    def __init__(self,
-                 rotation: bd.RotationLike = (0, 0, 0),
-                 align: AlignT = ALIGN_CENTER_BOTTOM,
-                 mode: bd.Mode = bd.Mode.ADD):
-
+    def __init__(
+        self,
+        rotation: bd.RotationLike = (0, 0, 0),
+        align: AlignT = ALIGN_CENTER_BOTTOM,
+        mode: bd.Mode = bd.Mode.ADD,
+    ):
         super().__init__(
             total_height=6.2,
             base_height=4.5,
@@ -273,12 +265,10 @@ class TrackPointCapGreenT430(TrackPointCapBase):
             hole_width=2.3,
             hole_length=2.3,
             hole_depth=5.3,
-
             # Since the inside of the cap is hard plastic and not rubber, we
             # decrease the tip width to make it fit better
             cap_adapter_length_decrease=0.2,
             cap_adapter_width_decrease=0.2,
-
             model='Green T430',
             rotation=rotation,
             align=bd.tuplify(align, 3),
@@ -287,11 +277,12 @@ class TrackPointCapGreenT430(TrackPointCapBase):
 
 
 class TrackPointCapBlueX1Carbon(TrackPointCapBase):
-    def __init__(self,
-                 rotation: bd.RotationLike = (0, 0, 0),
-                 align: AlignT = ALIGN_CENTER_BOTTOM,
-                 mode: bd.Mode = bd.Mode.ADD):
-
+    def __init__(
+        self,
+        rotation: bd.RotationLike = (0, 0, 0),
+        align: AlignT = ALIGN_CENTER_BOTTOM,
+        mode: bd.Mode = bd.Mode.ADD,
+    ):
         super().__init__(
             total_height=3.0,
             base_height=1.3,
@@ -299,16 +290,13 @@ class TrackPointCapBlueX1Carbon(TrackPointCapBase):
             dome_diameter=8.0,
             hole_width=2.2,
             hole_length=2.2,
-
             # Yes, the hole is smaller than the stem of the TP
             # the cap hovers above the platform
             hole_depth=1.8,
-
             # Since the inside of the cap is rubber, we don't decrease the
             # adapter size to achieve a tight fit.
             cap_adapter_length_decrease=0.0,
             cap_adapter_width_decrease=0.0,
-
             model='Blue X1 Carbon',
             rotation=rotation,
             align=bd.tuplify(align, 3),

@@ -17,9 +17,7 @@ def gen_cadquery_ocp_requirement(system=None, machine=None):
 
     requirement_str = 'cadquery-ocp'
     if system == 'Darwin' and machine == 'arm64':
-        requirement_str = (
-            f'cadquery-ocp @ https://github.com/CadQuery/ocp-build-system/releases/download/7.7.2.0/cadquery_ocp-7.7.2-{python_version}-{python_version}-macosx_11_0_arm64.whl'
-        )
+        requirement_str = f'cadquery-ocp @ https://github.com/CadQuery/ocp-build-system/releases/download/7.7.2.0/cadquery_ocp-7.7.2-{python_version}-{python_version}-macosx_11_0_arm64.whl'
 
     return requirement_str
 
