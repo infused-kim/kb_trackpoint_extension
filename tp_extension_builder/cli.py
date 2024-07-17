@@ -108,7 +108,7 @@ def export_or_show(interactive: bool,
         log_name = log_dir / Path(export_path.name).with_suffix('.log')
 
         try:
-            log_dir.mkdir(exist_ok=True)
+            log_dir.mkdir(exist_ok=True, parents=True)
             log_name.write_text(log)
             print(f'Wrote log to {log_name} ...')
         except (PermissionError, OSError) as e:

@@ -102,11 +102,16 @@ class ExportFormat(str, Enum):
         file_path = self.add_extension_to_path(file_path)
 
         print(f'Exporting to {file_path} ...')
-        if os.path.exists(file_path) is True and overwrite is False:
+        if file_path.exists() is True and overwrite is False:
             typer.confirm(
                 'The file already exist. Do you want to overwrite it?',
                 abort=True,
             )
+
+        try:
+            file_path.parent.mkdir(exist_ok=True, parents=True)
+        except (PermissionError, OSError) as e:
+            print(f'Could not create dir for export path: {e}')
 
         if self is ExportFormat.step:
             export_step(to_export, str(file_path))
