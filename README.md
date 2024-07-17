@@ -64,7 +64,7 @@ pipx install git+https://github.com/infused-kim/kb_trackpoint_extension.git
 
 # Or clone it and install from the directory
 git clone https://github.com/infused-kim/kb_trackpoint_extension.git
-pipx install ./kb_case_builder
+pipx install ./kb_trackpoint_extension
 ```
 
 > [!NOTE]
