@@ -1,10 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
+dynamic = ["version"]
+
 name = "tp_extension_builder"
-version = "1.1"
 description = "Scripts to generate 3D-printable models that increase the height of Lenovo TrackPoints to make them usable on ergonomic keyboards."
 readme = "README.md"
 
@@ -36,6 +37,10 @@ dev = [
 
 [project.scripts]
 tp_extension_builder = "tp_extension_builder.cli:app"
+
+
+[tool.setuptools_scm]
+version_file = "src/tp_extension_builder/_version.py"
 
 
 [tool.ruff]

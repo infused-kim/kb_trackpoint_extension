@@ -1,3 +1,4 @@
+import importlib
 import inspect
 import typer
 
@@ -6,6 +7,7 @@ from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Type,
+    Annotated,
     Any,
     Optional,
     Union,
@@ -206,6 +208,88 @@ class ExportFormat(str, Enum):
         new_file_path = Path(file_path_str)
 
         return new_file_path
+
+
+#
+# Get version
+#
+
+
+def get_package_version() -> Tuple[str, str]:
+    """
+    Returns the main package name and version string.
+    """
+
+    def get_package_name() -> str:
+        frame = inspect.currentframe()
+        try:
+            if frame is None:
+                raise RuntimeError('No frame found')
+
+            f_globals = frame.f_back.f_globals if frame.f_back else None
+
+            if not f_globals:
+                raise RuntimeError('No global variables found')
+
+            package_name = f_globals.get('__package__') or f_globals.get(
+                '__name__'
+            )
+
+            if not package_name:
+                raise RuntimeError('Could not determine package name')
+
+            return package_name.split('.')[0]
+        except Exception:
+            pass
+        finally:
+            del frame
+
+        raise RuntimeError('Could not determine package name')
+
+    def get_package_version(package_name: str) -> str:
+        try:
+            version = importlib.metadata.version(package_name)
+        except importlib.metadata.PackageNotFoundError:
+            raise RuntimeError(f'{package_name!r} is not installed.') from None
+
+        return version
+
+    package_name = get_package_name()
+    version = get_package_version(package_name=package_name)
+
+    return (package_name, version)
+
+
+def version_param_callback(value: bool):
+    """
+    To be used as the callback for the Typer.Option() version parameter.
+    """
+    if value:
+        package_name, version = get_package_version()
+        typer.echo(f'{package_name} - v{version}')
+        raise typer.Exit()
+
+
+def app_version_callback(
+    _: Annotated[
+        bool,
+        typer.Option(
+            '--version',
+            '-v',
+            help='Show the app version number.',
+            callback=version_param_callback,
+            is_eager=True,
+        ),
+    ] = False,
+) -> None:
+    """
+    Allows you to add a --version / -v parameter to a typer app.
+
+    Usage:
+        app = typer.Typer()
+        app.callback()(app_version_callback)
+    """
+    pass
 
 
 #

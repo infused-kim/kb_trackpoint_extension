@@ -10,6 +10,7 @@ from tp_extension_builder.cli_helpers import (
     get_export_path,
     TrackPointModel,
     ExportFormat,
+    app_version_callback,
 )
 
 from tp_extension_builder.defines import (
@@ -31,6 +32,7 @@ app = typer.Typer(
         'help_option_names': ['-h', '--help'],
     },
 )
+app.callback()(app_version_callback)
 
 
 D_EXPORT_PATH = get_export_path(

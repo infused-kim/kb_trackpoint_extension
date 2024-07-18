@@ -49,6 +49,7 @@ venv.bak/
 /NOTES.md
 
 # Temporary files while developing
+/src/tp_extension_builder/_version.py
 /_*.py
 
 # Exports
