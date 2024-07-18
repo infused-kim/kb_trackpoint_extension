@@ -37,9 +37,6 @@ dev = [
 [project.scripts]
 tp_extension_builder = "tp_extension_builder.cli:app"
 
-[tool.setuptools]
-py-modules = ["tp_extension_builder"]
-
 
 [tool.ruff]
 line-length = 79
