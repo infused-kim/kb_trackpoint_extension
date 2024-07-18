@@ -1,6 +1,45 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "tp_extension_builder"
+version = "1.1"
+description = "Scripts to generate 3D-printable models that increase the height of Lenovo TrackPoints to make them usable on ergonomic keyboards."
+readme = "README.md"
+
+requires-python = ">=3.9"
+dependencies = [
+    # Regular dependencies
+    "build123d",
+    "ocp_vscode",
+    "typer",
+
+    # build123d require cadquery_ocp, but it's currently not available for arm
+    # macOS on pypi. But it is available as a wheel on github. This config
+    # specifies the correct version on Apple Silicon systems depending on the
+    # used python version
+    'cadquery-ocp @ https://github.com/CadQuery/ocp-build-system/releases/download/7.7.2.0/cadquery_ocp-7.7.2-cp39-cp39-macosx_11_0_arm64.whl ; platform_system == "Darwin" and platform_machine == "arm64" and python_version == "3.9"',
+    'cadquery-ocp @ https://github.com/CadQuery/ocp-build-system/releases/download/7.7.2.0/cadquery_ocp-7.7.2-cp310-cp310-macosx_11_0_arm64.whl ; platform_system == "Darwin" and platform_machine == "arm64" and python_version == "3.10"',
+    'cadquery-ocp @ https://github.com/CadQuery/ocp-build-system/releases/download/7.7.2.0/cadquery_ocp-7.7.2-cp311-cp311-macosx_11_0_arm64.whl ; platform_system == "Darwin" and platform_machine == "arm64" and python_version == "3.11"',
+    'cadquery-ocp @ https://github.com/CadQuery/ocp-build-system/releases/download/7.7.2.0/cadquery_ocp-7.7.2-cp312-cp312-macosx_11_0_arm64.whl ; platform_system == "Darwin" and platform_machine == "arm64" and python_version == "3.12"',
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "mypy",
+]
+
+[project.urls]
+"Repository" = "https://github.com/infused-kim/kb_trackpoint_extension"
+
+[project.scripts]
+tp_extension_builder = "tp_extension_builder.cli:app"
+
+[tool.setuptools]
+py-modules = ["tp_extension_builder"]
+
 
 [tool.ruff]
 line-length = 79
@@ -19,11 +58,11 @@ quote-style = "single"
 indent-style = "space"
 docstring-code-format = true
 
+
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
 exclude = [
-    'setup.py',
     'testing/.*.py'
 ]
 

@@ -72,7 +72,7 @@ pipx install ./kb_trackpoint_extension
 >
 > This software relies on cadquery-ocp, which is currently not available for Apple Silicon systems on pypi. Instead it has to be installed using a github release wheel.
 >
-> The [setup.py](setup.py) file already takes care of this, but if it fails for whatever reason, [you can learn more about how to resolve Apple Silicon issues here](https://github.com/gumyr/build123d/issues/646).
+> The [pyproject.toml](pyproject.toml) file already takes care of this, but if it fails for whatever reason, [you can learn more about how to resolve Apple Silicon issues here](https://github.com/gumyr/build123d/issues/646).
 
 ### 3.2. Generate custom trackpoint extensions
 
