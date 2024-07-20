@@ -44,13 +44,16 @@ You also have to consider how much space is between your switches, above the PCB
 
 ### 2.2. Printing using JLC 3DP
 
-I have not tried this, but would probably use the resin SLA 8228 or 9000R materials due to the low tolerances and relatively high strength.
+I tried printing it with JLC 3DP and had a very good result. The fit was perfect using a 0.2mm hole increase, but 0.3 also fit.
+
+I used 9000R SLA material, but I think SLA 8228 and MJF PA-12 would also work well due to their low tolerances and relatively high strength.
 
 With JLC you can combine multiple parts into one file with sprues to get around their minimum cost. This way you can order 10 different versions with slightly different hole sizes and heights for approximately $1.30.
 
 You can generate various step files with different options and then run `tp_extension_builder combine` to generate one file with multiple designs like in the screenshot below.
 
-But keep in mind that JLC will charge you an extra $1 per combined STL [as per their connected parts printing policy](https://jlc3dp.com/help/article/213-Connected-Parts-Printing-Guide).
+But keep in mind that JLC might
+ charge you an extra $1 per combined STL [as per their connected parts printing policy](https://jlc3dp.com/help/article/213-Connected-Parts-Printing-Guide).
 
 ![TrackPoint Extensions Sprued for JLC 3DP](img/tp_extensions_sprued.png)
 
