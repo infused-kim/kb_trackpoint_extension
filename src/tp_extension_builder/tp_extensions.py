@@ -7,6 +7,7 @@ from typing import cast, Any, List, Dict, Optional
 
 from tp_extension_builder.tp_caps import (
     TrackPointCapBase,
+    TrackPointCapSK87,
     TrackPointCapRedT460S,
     TrackPointCapGreenT430,
     TrackPointCapBlueX1Carbon,
@@ -20,6 +21,7 @@ from tp_extension_builder.utils import (
 )
 
 from tp_extension_builder.defines import (
+    D_ADAPTER_HEIGHT_DECR,
     D_ADAPTER_WIDTH_BELOW_PCB,
     D_ADAPTER_WIDTH_ABOVE_PCB,
     D_EXTENSION_WIDTH,
@@ -357,6 +359,60 @@ class TrackPointExtensionBase(bd.BasePartObject):
 # TP Extensions
 #
 
+class TrackPointExtensionSK8707_01(TrackPointExtensionBase):
+    def __init__(
+        self,
+        adapter_hole_incr: float,
+        desired_cap_height: float,
+        tp_mounting_distance: float,
+        adapter_height_decr: float = D_ADAPTER_HEIGHT_DECR,
+        adapter_width_below_pcb: float = D_ADAPTER_WIDTH_BELOW_PCB,
+        adapter_width_above_pcb: float = D_ADAPTER_WIDTH_ABOVE_PCB,
+        extension_width: float = D_EXTENSION_WIDTH,
+        pcb_height: float = D_PCB_HEIGHT,
+        space_above_pcb: float = CHOC_SWITCH_MOUNTING_NOTCH_HEIGHT,
+        tp_cap: Optional[TrackPointCapBase] = None,
+        color: bd.Color = bd.Color('gray'),
+        rotation: bd.RotationLike = (0, 0, 0),
+        align: AlignT = ALIGN_CENTER_BOTTOM,
+        mode: bd.Mode = bd.Mode.ADD,
+    ) -> None:
+        if tp_cap is None:
+            tp_cap = TrackPointCapSK87()
+
+        # Height from bottom metal part to stem top
+        tp_total_height = 3.2
+
+        # Height of the metal and black, round platform part.
+        # This is the height that sticks out below the pcb if the
+        # TP is mounted totally flush.
+        tp_board_thickness = 0.8
+
+        # The height of the white stem (2.4mm)
+        tp_stem_height = tp_total_height - tp_board_thickness
+        tp_stem_width = 2.4
+
+        super().__init__(
+            # User Settings
+            adapter_hole_incr=adapter_hole_incr,
+            desired_cap_height=desired_cap_height,
+            tp_mounting_distance=tp_mounting_distance,
+            adapter_height_decr=adapter_height_decr,
+            adapter_width_below_pcb=adapter_width_below_pcb,
+            adapter_width_above_pcb=adapter_width_above_pcb,
+            extension_width=extension_width,
+            pcb_height=pcb_height,
+            space_above_pcb=space_above_pcb,
+            # TP Dimensions
+            tp_cap=tp_cap,
+            tp_stem_width=tp_stem_width,
+            tp_stem_height=tp_stem_height,
+            model='Sprintek SK8707-01',
+            color=color,
+            align=align,
+            rotation=rotation,
+            mode=mode,
+        )
 
 class TrackPointExtensionRedT460S(TrackPointExtensionBase):
     def __init__(
@@ -364,6 +420,7 @@ class TrackPointExtensionRedT460S(TrackPointExtensionBase):
         adapter_hole_incr: float,
         desired_cap_height: float,
         tp_mounting_distance: float,
+        adapter_height_decr: float = D_ADAPTER_HEIGHT_DECR,
         adapter_width_below_pcb: float = D_ADAPTER_WIDTH_BELOW_PCB,
         adapter_width_above_pcb: float = D_ADAPTER_WIDTH_ABOVE_PCB,
         extension_width: float = D_EXTENSION_WIDTH,
@@ -395,6 +452,7 @@ class TrackPointExtensionRedT460S(TrackPointExtensionBase):
             adapter_hole_incr=adapter_hole_incr,
             desired_cap_height=desired_cap_height,
             tp_mounting_distance=tp_mounting_distance,
+            adapter_height_decr=adapter_height_decr,
             adapter_width_below_pcb=adapter_width_below_pcb,
             adapter_width_above_pcb=adapter_width_above_pcb,
             extension_width=extension_width,
@@ -418,6 +476,7 @@ class TrackPointExtensionGreenT430(TrackPointExtensionBase):
         adapter_hole_incr: float,
         desired_cap_height: float,
         tp_mounting_distance: float,
+        adapter_height_decr: float = D_ADAPTER_HEIGHT_DECR,
         adapter_width_below_pcb: float = D_ADAPTER_WIDTH_BELOW_PCB,
         adapter_width_above_pcb: float = D_ADAPTER_WIDTH_ABOVE_PCB,
         extension_width: float = D_EXTENSION_WIDTH,
@@ -449,6 +508,7 @@ class TrackPointExtensionGreenT430(TrackPointExtensionBase):
             adapter_hole_incr=adapter_hole_incr,
             desired_cap_height=desired_cap_height,
             tp_mounting_distance=tp_mounting_distance,
+            adapter_height_decr=adapter_height_decr,
             adapter_width_below_pcb=adapter_width_below_pcb,
             adapter_width_above_pcb=adapter_width_above_pcb,
             extension_width=extension_width,
@@ -472,6 +532,7 @@ class TrackPointExtensionBlueX1Carbon(TrackPointExtensionBase):
         adapter_hole_incr: float,
         desired_cap_height: float,
         tp_mounting_distance: float,
+        adapter_height_decr: float = D_ADAPTER_HEIGHT_DECR,
         adapter_width_below_pcb: float = D_ADAPTER_WIDTH_BELOW_PCB,
         adapter_width_above_pcb: float = D_ADAPTER_WIDTH_ABOVE_PCB,
         extension_width: float = D_EXTENSION_WIDTH,
@@ -503,6 +564,7 @@ class TrackPointExtensionBlueX1Carbon(TrackPointExtensionBase):
             adapter_hole_incr=adapter_hole_incr,
             desired_cap_height=desired_cap_height,
             tp_mounting_distance=tp_mounting_distance,
+            adapter_height_decr=adapter_height_decr,
             adapter_width_below_pcb=adapter_width_below_pcb,
             adapter_width_above_pcb=adapter_width_above_pcb,
             extension_width=extension_width,

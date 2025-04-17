@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     # slow. So we only import it when it is needed and during type checking.
     from build123d import Shape
     from tp_extension_builder.tp_extensions import (
+        TrackPointExtensionSK8707_01,
         TrackPointExtensionRedT460S,
         TrackPointExtensionGreenT430,
         TrackPointExtensionBlueX1Carbon,
@@ -38,6 +39,7 @@ if TYPE_CHECKING:
 
 
 class TrackPointModel(str, Enum):
+    sk8707_01 = 'sk8707-01'
     red_t460s = 'red_t460s'
     green_t430 = 'green_t430'
     blue_x1_carbon = 'blue_x1_carbon'
@@ -46,6 +48,7 @@ class TrackPointModel(str, Enum):
     def build_extension(
         self,
     ) -> Union[
+        Type['TrackPointExtensionSK8707_01'],
         Type['TrackPointExtensionRedT460S'],
         Type['TrackPointExtensionGreenT430'],
         Type['TrackPointExtensionBlueX1Carbon'],
@@ -53,12 +56,14 @@ class TrackPointModel(str, Enum):
         # Importing these classes causes build123d to be imported, which is
         # very slow. So we do it only when it's actually needed.
         from tp_extension_builder.tp_extensions import (
+            TrackPointExtensionSK8707_01,
             TrackPointExtensionRedT460S,
             TrackPointExtensionGreenT430,
             TrackPointExtensionBlueX1Carbon,
         )
 
         mapping = {
+            TrackPointModel.sk8707_01: TrackPointExtensionSK8707_01,
             TrackPointModel.red_t460s: TrackPointExtensionRedT460S,
             TrackPointModel.green_t430: TrackPointExtensionGreenT430,
             TrackPointModel.blue_x1_carbon: TrackPointExtensionBlueX1Carbon,
