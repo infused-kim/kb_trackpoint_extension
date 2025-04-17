@@ -41,6 +41,7 @@ class TrackPointExtensionBase(bd.BasePartObject):
         adapter_hole_incr: float,
         desired_cap_height: float,
         tp_mounting_distance: float,
+        adapter_height_decr: float,
         adapter_width_below_pcb: float,
         adapter_width_above_pcb: float,
         extension_width: float,
@@ -62,6 +63,7 @@ class TrackPointExtensionBase(bd.BasePartObject):
 
         self._desired_cap_height = abs(desired_cap_height)
         self._tp_mounting_distance = abs(tp_mounting_distance)
+        self._adapter_height_decr = abs(adapter_height_decr)
         self._adapter_hole_incr = abs(adapter_hole_incr)
         self._adapter_width_below_pcb = abs(adapter_width_below_pcb)
         self._adapter_width_above_pcb = abs(adapter_width_above_pcb)
@@ -76,7 +78,7 @@ class TrackPointExtensionBase(bd.BasePartObject):
             self._tp_mounting_distance
             + self._pcb_height
             + self._space_above_pcb
-            - 0.2
+            - self._adapter_height_decr
         )
 
         self._adapter_hole_width = (

@@ -19,6 +19,7 @@ from tp_extension_builder.defines import (
     D_ADAPTER_HOLE_INCR,
     D_MOUNTING_DISTANCE,
     D_PCB_HEIGHT,
+    D_ADAPTER_HEIGHT_DECR,
     D_ADAPTER_WIDTH_BELOW_PCB,
     D_ADAPTER_WIDTH_ABOVE_PCB,
     D_EXTENSION_WIDTH,
@@ -251,6 +252,17 @@ OptSpaceAbovePCB = Annotated[
     ),
 ]
 
+OptAdapterHeightDecr = Annotated[
+    float,
+    typer.Option(
+        '--adapter-height-decrease',
+        '--ahd',
+        help=(
+            'Adjust how much the adapter\'s height should be decreased to ensure a proper fit.'
+        ),
+    ),
+]
+
 OptAdapterWidthBelowPCB = Annotated[
     float,
     typer.Option(
@@ -308,6 +320,9 @@ def build(
     desired_cap_height: OptDesiredCapHeight = CHOC_KEYCAP_HEIGHT,
     pcb_height: OptPcbHeight = D_PCB_HEIGHT,
     space_above_pcb: OptSpaceAbovePCB = (CHOC_SWITCH_MOUNTING_NOTCH_HEIGHT),
+    adapter_height_decr: OptAdapterHeightDecr = (
+        D_ADAPTER_HEIGHT_DECR
+    ),
     adapter_width_below_pcb: OptAdapterWidthBelowPCB = (
         D_ADAPTER_WIDTH_BELOW_PCB
     ),
@@ -331,6 +346,7 @@ def build(
         adapter_hole_incr=adapter_hole_incr,
         desired_cap_height=desired_cap_height,
         tp_mounting_distance=tp_mounting_distance,
+        adapter_height_decr=adapter_height_decr,
         adapter_width_below_pcb=adapter_width_below_pcb,
         adapter_width_above_pcb=adapter_width_above_pcb,
         extension_width=extension_width,
