@@ -267,7 +267,7 @@ class TrackPointCapRedT460S(TrackPointCapBase):
             # adapter size for a tighter fit
             cap_adapter_length_decrease=0.0,
             cap_adapter_width_decrease=0.0,
-            model='Green T460S',
+            model='Red T460S',
             rotation=rotation,
             align=bd.tuplify(align, 3),
             mode=mode,
