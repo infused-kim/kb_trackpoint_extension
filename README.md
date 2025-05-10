@@ -267,6 +267,10 @@ tp_extension_builder
 
 Unlike with pip, the app is installed automatically in _"editable"_ mode and any changes to the python files are immediately reflected when you run it.
 
+You can also use the [just task-runner](https://github.com/casey/just) to execute common tasks.
+
+Run `just help` to see all available commands or check the [Justfile](Justfile) to see how common tasks are performed.
+
 ### 4.2. Add the new TrackPoint
 
 You have to edit the following files:
