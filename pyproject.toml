@@ -33,6 +33,15 @@ tp_extension_builder = "tp_extension_builder.cli:app"
 [tool.setuptools_scm]
 version_file = "src/tp_extension_builder/_version.py"
 
+[tool.uv]
+# Ensures the package is re-installed when the git version changes
+# or the pyproject.toml file is changed.
+#
+# This is necessary to update the version number with setuptools-scm.
+cache-keys = [
+    { file = "pyproject.toml" },
+    { git = true },
+]
 
 [tool.ruff]
 line-length = 79
