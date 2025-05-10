@@ -31,6 +31,10 @@ app = typer.Typer(
     context_settings={
         'help_option_names': ['-h', '--help'],
     },
+    help=(
+        'Builds 3D-printable models that increase the height of Lenovo '
+        'TrackPoints to make them usable on ergonomic keyboards.'
+    ),
 )
 app.callback()(app_version_callback)
 
