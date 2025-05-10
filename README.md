@@ -61,6 +61,15 @@ But keep in mind that JLC might
 
 ### 3.1. Install the generator script
 
+Using [uv](https://github.com/astral-sh/uv)...
+
+```bash
+# Install directly from the repo
+uv tool install git+https://github.com/infused-kim/kb_trackpoint_extension.git
+```
+
+Using [pipx](https://github.com/pypa/pipx)...
+
 ```bash
 # Install directly from the repo
 pipx install git+https://github.com/infused-kim/kb_trackpoint_extension.git
@@ -69,13 +78,6 @@ pipx install git+https://github.com/infused-kim/kb_trackpoint_extension.git
 git clone https://github.com/infused-kim/kb_trackpoint_extension.git
 pipx install ./kb_trackpoint_extension
 ```
-
-> [!NOTE]
-> **For macOS Apple Silicon (ARM / M1, M2, M3) users:**
->
-> This software relies on cadquery-ocp, which is currently not available for Apple Silicon systems on pypi. Instead it has to be installed using a github release wheel.
->
-> The [pyproject.toml](pyproject.toml) file already takes care of this, but if it fails for whatever reason, [you can learn more about how to resolve Apple Silicon issues here](https://github.com/gumyr/build123d/issues/646).
 
 ### 3.2. Generate custom trackpoint extensions
 
@@ -230,34 +232,40 @@ And you can customize a lot of the extension values through command line paramet
 
 ### 4.1. Set up the development environment
 
-A best practice is to create virtual python environments for different purposes and projects. I recommend using [pyenv](https://github.com/pyenv/pyenv) and [pyenv-virtualenv](https://github.com/pyenv/pyenv-virtualenv) for that purpose.
+This project is designed to use [uv](https://github.com/astral-sh/uv) for python project and dependency management.
+
+Uv is a faster and easier to use tool that can replace pip, pipx, pyenv, etc. It automatically installs the right python version, creates a virtual environment and installs all dependencies.
+
+If you are a python developer who is using another toolchain, you can install uv _alongside_ it for this project. It will play nice with all your existing python installations and tools. You can even use `uv pip` as a _much faster_ drop-in replacement for pin without changing the structure of any of your projects.
 
 Here is an example setup...
 
 ```bash
+# Install uv
+# More info: https://docs.astral.sh/uv/getting-started/installation/
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
 # Clone the repo
 git clone git@github.com:infused-kim/kb_trackpoint_extension.git
 
 # cd into the repo directory
 cd kb_trackpoint_extension
 
-# Install python
-pyenv install 3.11
+# Install the app into .venv virtual env
+uv sync
 
-# Create a new environment
-pyenv virtualenv 3.11 build123d
+# Run the app
+uv run tp_extension_builder
 
-# Activate the environment
-pyenv activate build123d
+# Or activate the env
+source .venv/bin/activate       # bash, zsh, etc.
+source .venv/bin/activate.fish  # fish shell
 
-# Make it the default environment for the current directory
-# so that it activates whenever you cd into it.
-pyenv local build123d
-
-# Install tp_extension_builder in edit mode so that new changes
-# are automatically reflected in the CLI app.
-pip install -e .[dev]
+# And run the app without using `uv run`
+tp_extension_builder
 ```
+
+Unlike with pip, the app is installed automatically in _"editable"_ mode and any changes to the python files are immediately reflected when you run it.
 
 ### 4.2. Add the new TrackPoint
 
