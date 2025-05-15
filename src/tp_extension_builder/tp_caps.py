@@ -223,6 +223,30 @@ class TrackPointCapBase(bd.BasePartObject):
 
         return cast(bd.Shape, base)
 
+class TrackPointCapSK87(TrackPointCapBase):
+    def __init__(
+        self,
+        rotation: bd.RotationLike = (0, 0, 0),
+        align: AlignT = ALIGN_CENTER_BOTTOM,
+        mode: bd.Mode = bd.Mode.ADD,
+    ):
+        super().__init__(
+            total_height=4.5,
+            base_height=2.8,
+            base_diameter=6.7,
+            dome_diameter=8.6,
+            hole_width=2.4,
+            hole_length=2.4,
+            hole_depth=2.4,
+            # Since the inside of the cap is rubber, we don't decrease the
+            # adapter size for a tighter fit
+            cap_adapter_length_decrease=0.0,
+            cap_adapter_width_decrease=0.0,
+            model='SK87',
+            rotation=rotation,
+            align=bd.tuplify(align, 3),
+            mode=mode,
+        )
 
 class TrackPointCapRedT460S(TrackPointCapBase):
     def __init__(
@@ -243,7 +267,7 @@ class TrackPointCapRedT460S(TrackPointCapBase):
             # adapter size for a tighter fit
             cap_adapter_length_decrease=0.0,
             cap_adapter_width_decrease=0.0,
-            model='Green T460S',
+            model='Red T460S',
             rotation=rotation,
             align=bd.tuplify(align, 3),
             mode=mode,
